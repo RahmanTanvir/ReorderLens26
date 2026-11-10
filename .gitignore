@@ -1,0 +1,27 @@
+# Local project specifications and original design references (owner requested).
+/ReorderLens_Docs/
+
+# Dependencies and package-manager state.
+/node_modules/
+/.pnpm-store/
+
+# Generated output and local test artifacts.
+/.next/
+/out/
+/coverage/
+/artifacts/
+*.tsbuildinfo
+next-env.d.ts
+
+# Environment files and local credentials; retain the safe template.
+.env*
+!.env.example
+*.pem
+*.key
+
+# Editor, OS and debug files.
+/.idea/
+/.vscode/
+.DS_Store
+Thumbs.db
+*.log

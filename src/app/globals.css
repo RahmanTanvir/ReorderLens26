@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+/* Bootstrap defaults only. Graphite tokens and Manrope are introduced in P1. */
+:root {
+  color-scheme: dark;
+  background: #111617;
+  color: #f1f3f0;
+  font-family: system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+}
