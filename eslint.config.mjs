@@ -15,7 +15,7 @@ export default defineConfig([
   ]),
   {
     files: ["src/**/*.{ts,tsx}"],
-    ignores: ["src/server/**", "src/app/**"],
+    ignores: ["src/server/**", "src/app/**", "src/lib/supabase/server.ts", "src/proxy.ts"],
     rules: {
       "no-restricted-imports": [
         "error",

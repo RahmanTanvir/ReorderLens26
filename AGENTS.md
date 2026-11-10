@@ -1,7 +1,8 @@
 # ReorderLens engineering instructions
 
-Implement only the phase explicitly authorized by the owner. P0 is the current
-bootstrap milestone; do not begin P1 or later without a new instruction.
+Implement only the phase explicitly authorized by the owner. The owner marked P2
+complete with its documented verification gaps and authorized P3 (imports/sample).
+Do not begin P4 or later without instruction.
 
 Before product work, read `ReorderLens_Docs/AGENTS.md` and
 `ReorderLens_Docs/CODEX_INSTRUCTIONS.md`, then the decision register and roadmap.
