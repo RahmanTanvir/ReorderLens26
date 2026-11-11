@@ -1,0 +1,21 @@
+import { z } from "zod";
+
+export const FORECAST_VERSION="seasonal_baseline_v1";
+export const horizonSchema=z.union([z.literal(7),z.literal(14),z.literal(28)]);
+export const generateForecastSchema=z.object({horizonDays:horizonSchema,asOfDate:z.iso.date().min(10).max(10)}).strict();
+export const observationSchema=z.object({date:z.iso.date(),units:z.number().int().min(0).max(2147483647),availability:z.enum(["available","stockout","unknown"]),promo:z.boolean()}).strict();
+export type Observation=z.infer<typeof observationSchema>;
+const decimal=z.string().regex(/^\d+(\.\d+)?$/);
+export const pointSchema=z.object({date:z.iso.date(),units:decimal});
+export type ForecastPoint=z.infer<typeof pointSchema>;
+export const runSchema=z.object({id:z.uuid(),method:z.enum(["seasonal_baseline","sample_fixture"]),status:z.enum(["running","succeeded","failed"]),asOfDate:z.iso.date(),horizonDays:horizonSchema,historyStart:z.iso.date().nullable(),historyEnd:z.iso.date().nullable(),createdAt:z.string(),finishedAt:z.string().nullable(),staleAt:z.string().nullable(),version:z.string().nullable(),errorCode:z.string().nullable(),summary:z.object({total:z.number().int(),sufficient:z.number().int(),insufficient:z.number().int()})});
+export type ForecastRun=z.infer<typeof runSchema>;
+export const forecastItemSchema=z.object({id:z.uuid(),productId:z.uuid(),sku:z.string(),name:z.string(),supplier:z.string(),dailyUnits:decimal.nullable(),horizonTotal:decimal.nullable(),quality:z.enum(["sufficient","insufficient","unavailable"]),eligibleDays:z.number().int(),observedDays:z.number().int(),stockoutDays:z.number().int(),unknownDays:z.number().int(),promoDays:z.number().int(),availabilityUsed:z.boolean(),reasonCodes:z.array(z.string()),limitation:z.string().nullable()});
+export type ForecastItem=z.infer<typeof forecastItemSchema>;
+export const runDetailSchema=z.object({run:runSchema,items:z.array(forecastItemSchema),total:z.number().int(),nextCursor:z.string().nullable(),selected:z.object({item:forecastItemSchema,history:z.array(observationSchema),points:z.array(pointSchema)}).nullable()});
+export type ForecastDetail=z.infer<typeof runDetailSchema>;
+export const runListSchema=z.object({items:z.array(runSchema),nextCursor:z.string().nullable()});
+export const generationSchema=z.object({runId:z.uuid(),status:z.enum(["succeeded","failed"]),reused:z.boolean(),errorCode:z.string().nullable()});
+export const forecastQuerySchema=z.object({runId:z.uuid().optional(),productId:z.uuid().optional(),limit:z.coerce.number().int().min(1).max(100).default(25),cursor:z.uuid().optional(),runsCursor:z.uuid().optional()}).strict();
+export type ForecastQuery=z.infer<typeof forecastQuerySchema>;
+export const reasonText:Record<string,string>={INSUFFICIENT_HISTORY:"Fewer than 14 eligible days in the 28-day window.",NO_RECENT_OBSERVATION:"No eligible observation in the last seven days.",STOCKOUT_DAYS_EXCLUDED:"Recorded stockout days were excluded; lost sales are not reconstructed.",UNKNOWN_AVAILABILITY:"Unknown-availability sales remain uncorrected observations.",PROMOTIONS_NOT_MODELED:"Promotion flags are recorded; this baseline does not model promotional effects.",ILLUSTRATIVE_SAMPLE:"Illustrative sample rate, not fitted from recorded history.",BASELINE_LIMITS:"Statistical baseline; no calibrated interval or proven accuracy is claimed."};

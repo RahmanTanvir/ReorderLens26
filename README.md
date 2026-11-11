@@ -5,8 +5,10 @@ reviewed phases. P1 was accepted by the owner. P2 now includes Supabase migratio
 server-side authentication, workspace setup and settings. The owner marked P2
 complete and authorized P3 with the verification gaps below carried forward. `/` redirects to
 `/login`; the preserved P1 visual preview is at `/preview`. P3 adds imports and
-isolated sample data. Inventory analysis,
-forecasting, planning, purchase orders and AI remain later phases.
+isolated sample data. P4 implements Overview, Inventory and Product Details.
+P5 adds saved baseline forecasts and their source evidence at `/app/forecasts`;
+the owner applied its hosted SQL upgrade and all final hosted checks passed. Planning,
+purchase orders and AI remain later phases.
 
 Follow [the Supabase development setup](supabase/README.md) before testing P2.
 Configuration belongs in the ignored `.env.local`; `.env.example` is a blank
@@ -71,8 +73,8 @@ the framework-managed `next-env.d.ts` is intentionally ignored.
 
 P2 adds `supabase/migrations/`, server-only Supabase/auth helpers, same-origin
 auth/workspace/profile handlers, `/setup`, `/app/overview` and `/app/settings`.
-The overview is an honest workspace-ready landing page until P4. Later phases
-add domain calculations and business workflows. No inventory/import API exists.
+P3 adds guarded imports; P4 adds inventory/risk domain functions and protected
+read APIs. Later phases add forecast generation and purchasing workflows.
 
 ## Design and backend gates
 
@@ -317,3 +319,133 @@ P2's accepted verification gaps remain release follow-ups. Automatic hosted
 two-account API/Storage tests and load testing at the maximum input size have not
 been performed. Original-file retention/deletion still needs a launch decision.
 No commit, push, deployment or P4 implementation was performed.
+
+## P4 inventory and risk — 2026-11-11
+
+The owner explicitly authorized P4 after the P3 hosted checks. Overview, Inventory
+and Product Details now use authenticated Supabase reads. Inventory supports
+literal name/SKU search, supplier/status filters, five validated sort orders,
+stable cursor pagination, current stock dates, demand provenance and stale-input
+warnings. Import confirmation now links directly to Inventory. Links and filters
+preserve their URL state; product section links respect the sticky header. Unknown data is separate
+from healthy/zero demand; disabled planning/Insight actions remain explained.
+
+The read view and procedures use **security invoker** permissions and underlying
+tenant RLS, plus internal membership checks. Monetary inputs remain decimal
+strings; domain ratios use scaled BigInt arithmetic and display half-up from
+unrounded inputs. SQL/domain risk parity is tested. Cursors are scoped to the
+workspace, query and source revision; source changes require a fresh first page.
+
+Real workspaces receive no hardcoded demand. Until P5 creates sufficient forecasts,
+their imported stock appears with Insufficient data for demand/risk. Sample
+workspaces alone receive the eight documented illustrative daily rates, labeled
+`sample_fixture`; Oil shows 38 on hand, 7/day, 5.4 days cover, 6-day lead and a
+0.6-day gap. No history, curve, uncertainty, plan, PO or model performance is
+invented. Product history renders recorded dates and availability; missing days
+stay missing. Actual saved forecast points are shown only when present.
+
+Existing projects need only the **P4 upgrade**:
+
+```powershell
+corepack.cmd pnpm db:bundle p4
+```
+
+Apply `artifacts/p4-upgrade.sql` once in the isolated Supabase SQL Editor; do not
+rerun P2/P3. [Setup and live checks](supabase/P4_SETUP.md) describe the exact steps.
+`supabase/verify-p4.sql` provides a read-only structural check. Old migrations and
+the original design references were preserved. No new dependency was needed.
+
+Verified locally: final `corepack.cmd pnpm check` passes lint, strict types,
+**198/198 tests in 16 files** and production build. This includes 77 PostgreSQL
+permission/read-model cases across P2–P4, 18 specifically for inventory. Tests
+cover exact thresholds, sample/real separation, latest eligible snapshots/runs,
+staleness, literal filters, all sort orders, pagination, tenant/role restrictions,
+decimal strings, safe API errors, saved budget prices, tables and chart semantics.
+
+Isolated component browser QA uses actual migrated local PostgreSQL sample
+records, not a mock inventory backend: six states across 1440/1487/1024/390/320px
+passed overflow and automated WCAG A/AA checks. Images were reviewed against
+S04/S05/S06. This remains static component QA, not hosted authenticated browser
+automation. Native S05 size is retained. Intentional differences include real
+unknown/budget states, labeled illustrative rates, meaningful section links,
+sparse recorded history, and visibly unavailable later-phase actions.
+
+The owner reported successful P4 upgrade application and that all requested
+authenticated sample/real-workspace checks passed on 2026-11-11. Supplied TWH
+screenshots confirm eight loaded products/stock snapshots, unavailable demand,
+eight unclassified products and no matches for the At risk filter, as expected
+without a saved forecast. Sample counts, Oil evidence and filter-preserving return
+navigation were owner-reported checks, not inferred from these real-mode images.
+P4 functional verification is complete. All three hosted P4 read procedures
+reject anonymous execution (401/42501). Previously accepted P2 release follow-ups, maximum-size
+hosted performance and source-retention decisions remain unresolved. No P5,
+deployment, commit or push is authorized or performed by P4.
+
+Production smoke checks confirmed unauthenticated Inventory/Product Details
+redirect to login, and all three inventory read APIs reject anonymous requests
+with 401 and private no-store headers. Production dependency audit is clean.
+All original reference-image hashes and logo bytes are preserved; the runtime
+browser assets contain no secret credential names/prefixes. The agent's port-3100
+production test server was stopped; the owner's development server was not stopped.
+
+## P5 baseline forecasting — 2026-11-11
+
+The owner authorized P5. `/app/forecasts` generates and reviews immutable
+`seasonal_baseline_v1` runs for 7/14/28 days, with selected-product history,
+projected points, exact tables, quality reasons and provenance. Owners/operators
+can generate; viewers read; sample rates remain read-only and illustrative.
+Inventory consumes the latest completed run, including honest unknown demand
+when a newer result is insufficient. P6 planning and external AI remain gated.
+
+Two additive migrations (00800/00900) add source/algorithm identity, immutable
+source/catalog snapshots, guarded atomic generation and invoker read procedures.
+Direct forecast writes remain denied. Generation shares the import lock, reuses
+successful identical inputs and limits new runs to ten/hour/workspace. A caught
+failure preserves only safe status, rolling back all partial estimates. No new
+dependencies, environment variables, services or service-role access were added.
+
+The baseline uses the preceding 28 days, at least 14 eligible records and a recent
+eligible observation. Explicit stockouts are excluded, unknown availability is
+uncorrected, and promotions/lost sales are not modeled. Weekday means require two
+matches, otherwise the overall mean is used. Exact rational predictions produce
+D7 before rounding; the existing numeric(14,4) storage precision is disclosed.
+No fabricated interval, accuracy percentage, missing-as-zero input or sample
+curve is shown. Real-data MAE/WAPE/held-out comparison remains a release follow-up.
+
+Generate an upgrade for an existing P4 development project:
+
+```powershell
+corepack.cmd pnpm db:bundle p5
+```
+
+Apply the complete `artifacts/p5-upgrade.sql` once, **not older bundles**.
+[P5 setup and verification](supabase/P5_SETUP.md) describes recovery, API paging
+and the distinction between run completion and sufficient evidence. The owner
+reported successful hosted application on 2026-11-11; all three new hosted RPCs
+reject anonymous execution (401/42501). Owner screenshots show a saved TWH run
+with eight insufficient products; Rice has four eligible/seven recorded days,
+three excluded stockout days and no invented future series. This is the correct
+small-dataset result, not a generation failure.
+
+Screenshots also exposed a stale saved-run selector after client navigation.
+The selector now resets to the loaded run; its horizon/cutoff are explicit beside
+the ID. A component navigation regression covers the mismatch. The owner reported
+all final checks passed: selector synchronization, 7/14/28-day runs, identical-input
+run reuse and eight read-only sample rates. P5 functional verification is complete;
+this is owner-run hosted evidence, not automated hosted E2E.
+
+Local verification includes full lint/types/tests/build, exact TypeScript/SQL
+parity, chronological gates, fractional pre-rounding, immutable provenance,
+atomic failure rollback, tenant/viewer/anon rules, retry limits, stable pages,
+inventory integration and form/error states. Nine isolated component states at
+five widths passed 45 overflow/axe checks; phone controls now stack readably.
+The isolated 500-product/28-day load check saved 500 results / 14,000 points in
+7,765ms on PGlite; this is not hosted/Vercel latency evidence. Production route
+auth/no-store checks, production audit, original asset hashes and browser
+credential-marker scan pass. Final `corepack.cmd pnpm check` exits 0 with
+**253/253 tests in 20 files**, zero-warning lint, strict types and production build;
+97 PostgreSQL cases span P2-P5, including 20 new forecasting cases.
+
+Inherited P2 hosted isolation/recovery/generated-types gaps, hosted maximum-size
+performance and source retention remain release gates. No deployment, commit or
+push was performed. P6 requires explicit authorization.

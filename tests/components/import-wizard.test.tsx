@@ -40,6 +40,7 @@ describe("import interaction",()=>{
     await user.click(confirm);expect(await screen.findByRole("alert")).toHaveTextContent(/Retrying the same job is safe/);expect(confirm).toBeEnabled();
     vi.mocked(requestJson).mockResolvedValueOnce({jobId:job.jobId,counts,committedAt:"2026-11-10T12:00:00Z",alreadyCommitted:true});
     await user.click(confirm);expect(await screen.findByText(/Import confirmed. The records are saved/)).toBeInTheDocument();
+    expect(screen.getByRole("link",{name:"Review inventory"})).toHaveAttribute("href","/app/inventory");
     expect(vi.mocked(requestJson).mock.calls.filter(call=>call[0].endsWith("/commit"))).toHaveLength(2);
   });
   it("does not offer confirmation after invalid rows and preserves mapping review",async()=>{

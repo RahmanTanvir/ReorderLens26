@@ -140,11 +140,12 @@ describe("import permissions and source privacy",()=>{
   });
 });
 describe("isolated sample seed",()=>{
-  it("is idempotent, seeds only approved catalog/history and never forecast/PO output",async()=>{
+  it("is idempotent, seeds approved history/sample rates without runtime forecast or PO output",async()=>{
     expect(await scalar<string>("select public.create_sample_workspace() as value")).toBe(sample);
     expect(await scalar<number>("select count(*)::integer as value from public.products where org_id=$1",[sample])).toBe(8);
     expect(await scalar<number>("select count(*)::integer as value from public.sales_daily where org_id=$1",[sample])).toBe(9);
-    expect(await scalar<number>("select count(*)::integer as value from public.forecast_runs where org_id=$1",[sample])).toBe(0);
+    expect(await scalar<number>("select count(*)::integer as value from public.forecast_runs where org_id=$1 and method='sample_fixture'",[sample])).toBe(1);
+    expect(await scalar<number>("select count(*)::integer as value from public.forecast_runs where org_id=$1 and method<>'sample_fixture'",[sample])).toBe(0);
     expect(await scalar<number>("select on_hand as value from public.inventory_snapshots s join public.products p on p.org_id=s.org_id and p.id=s.product_id where p.org_id=$1 and p.sku='RL-102'",[sample])).toBe(38);
     await as(users.b);expect((await query("select * from public.products where org_id=$1",[sample])).rows).toHaveLength(0);
   });

@@ -25,6 +25,12 @@ export type Database = {
       begin_import: { Args:{p_org_id:string;p_job_id:string;p_manifest:Json}; Returns:string };
       validate_import: { Args:{p_org_id:string;p_job_id:string;p_mapping:Json;p_data:Json;p_report:Json}; Returns:Json };
       commit_import: { Args:{p_org_id:string;p_job_id:string;p_data:Json;p_confirm_upserts:boolean;p_validation_token:string}; Returns:Json };
+      read_inventory: {Args:{p_org_id:string;p_q?:string;p_status?:string;p_supplier_id?:string;p_sort?:string;p_limit?:number;p_after?:Json;p_revision?:string};Returns:Json};
+      read_product: {Args:{p_org_id:string;p_product_id:string};Returns:Json};
+      read_inventory_budget: {Args:{p_org_id:string};Returns:Json};
+      generate_forecast: {Args:{p_org_id:string;p_as_of_date:string;p_horizon_days:number};Returns:Json};
+      list_forecast_runs: {Args:{p_org_id:string;p_limit?:number;p_before?:string};Returns:Json};
+      read_forecast_run: {Args:{p_org_id:string;p_run_id:string;p_limit?:number;p_after?:string;p_product_id?:string};Returns:Json};
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

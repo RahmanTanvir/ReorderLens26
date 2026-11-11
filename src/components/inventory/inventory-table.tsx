@@ -1,0 +1,16 @@
+import Link from "next/link";
+import { displayCover,displayUnits,riskLabels } from "@/domain/inventory/risk";
+import type { InventoryItem } from "@/lib/inventory/contracts";
+import { Badge } from "@/components/ui/badge";
+import { Table,TableBody,TableCell,TableHead,TableHeader,TableRow } from "@/components/ui/table";
+
+export function RiskBadge({item}:{item:InventoryItem}) {
+  return <Badge tone={item.risk.code==="at_risk"?"critical":item.risk.code==="reorder_soon"?"warning":item.risk.code==="healthy"?"healthy":"neutral"}>{riskLabels[item.risk.code]}</Badge>;
+}
+export function InventoryTable({items,compact=false,back="/app/inventory"}:{items:InventoryItem[];compact?:boolean;back?:string}) {
+  return <Table scrollLabel="Inventory records; scroll horizontally for all columns" className={`${compact?"min-w-[680px]":"min-w-[960px]"} [&_td]:py-2`}>
+    <caption className="sr-only">Active products and their saved stock, demand evidence and estimated risk. Supplier lead time is not a confirmed delivery.</caption>
+    <TableHeader><TableRow><TableHead>Product (SKU)</TableHead><TableHead>Supplier</TableHead>{!compact?<><TableHead className="text-right">On hand</TableHead><TableHead className="text-right">Daily demand</TableHead></>:null}<TableHead className="text-right">Stock cover</TableHead><TableHead className="text-right">Lead time</TableHead><TableHead>Status</TableHead></TableRow></TableHeader>
+    <TableBody>{items.map(item=><TableRow key={item.id}><TableCell className="min-w-44"><Link href={`/app/inventory/${item.id}?${new URLSearchParams({back})}`} className="rounded-sm font-semibold hover:text-primary hover:underline">{item.name}</Link><p className="mt-1 text-xs text-muted-foreground">{item.sku}</p>{item.warnings.includes("STALE_SNAPSHOT")||item.warnings.includes("STALE_FORECAST")?<p className="mt-1 text-xs text-warning">Stale source · review before use</p>:null}</TableCell><TableCell className="min-w-36 text-secondary-foreground">{item.supplier.name}{!item.supplier.active?<span className="block text-xs text-warning">Inactive supplier</span>:null}</TableCell>{!compact?<><TableCell className="text-right tabular-nums">{item.stock?.onHand.toLocaleString()??"—"}<span className="mt-1 block whitespace-nowrap text-xs text-muted-foreground">{item.stock?.asOfDate??"No snapshot"}</span></TableCell><TableCell className="text-right tabular-nums">{item.demand.quality==="sufficient"&&item.demand.dailyUnits!==null?displayUnits(item.demand.dailyUnits):"—"}<span className="mt-1 block text-xs text-muted-foreground">{item.demand.method==="sample_fixture"?"Illustrative / day":item.demand.quality==="sufficient"?"Estimated / day":"Insufficient data"}</span></TableCell></>:null}<TableCell className={`text-right whitespace-nowrap tabular-nums ${item.risk.code==="at_risk"?"text-destructive":item.risk.code==="reorder_soon"?"text-warning":""}`}>{displayCover(item)!==null?`${displayCover(item)} d`:item.risk.noDemand?"No recent demand":"—"}</TableCell><TableCell className="text-right whitespace-nowrap tabular-nums">{item.effectiveLeadDays} d</TableCell><TableCell className="whitespace-nowrap"><RiskBadge item={item}/></TableCell></TableRow>)}</TableBody>
+  </Table>;
+}
