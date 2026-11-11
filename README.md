@@ -7,8 +7,10 @@ complete and authorized P3 with the verification gaps below carried forward. `/`
 `/login`; the preserved P1 visual preview is at `/preview`. P3 adds imports and
 isolated sample data. P4 implements Overview, Inventory and Product Details.
 P5 adds saved baseline forecasts and their source evidence at `/app/forecasts`;
-the owner applied its hosted SQL upgrade and all final hosted checks passed. Planning,
-purchase orders and AI remain later phases.
+the owner applied its hosted SQL upgrade and all final hosted checks passed.
+P6 adds saved purchasing plans and stateless supplier-delay scenarios; its hosted
+upgrade and final owner checks passed. The owner marked P6 complete and authorized
+P7 purchase-order drafts/export. P8 AI remains gated.
 
 Follow [the Supabase development setup](supabase/README.md) before testing P2.
 Configuration belongs in the ignored `.env.local`; `.env.example` is a blank
@@ -449,3 +451,116 @@ credential-marker scan pass. Final `corepack.cmd pnpm check` exits 0 with
 Inherited P2 hosted isolation/recovery/generated-types gaps, hosted maximum-size
 performance and source retention remain release gates. No deployment, commit or
 push was performed. P6 requires explicit authorization.
+
+## P6 purchasing plans and supplier-delay scenarios — 2026-11-11
+
+The owner explicitly authorized P6. `/app/replenishment` now creates an atomic
+saved plan from a chosen completed forecast, freezes its input/cost/pack/label
+snapshots, and supports exact-money approval/budget editing. Greedy allocation
+prioritizes risk, descending pre-arrival gap, then SKU; it is not a global optimum.
+Missing or insufficient demand is never invented. The owner's TWH screenshots
+confirm the expected creation block with zero sufficient forecasts and the empty
+scenario state without a saved plan.
+
+Sample mode explicitly loads the documented `sample_fixture` plan: four selected
+products/185 units, BDT 48,750 total against BDT 50,000. Those fixed suggestions
+are labeled as illustrative rather than heuristic output. Sample approval/budget
+edits remain isolated from real data. Its forecasting/import restrictions stay in
+place. Suggestions and approved quantities remain separate; original suggestions
+are not silently changed when a budget changes. Reset restores those suggestions.
+
+Save working plan applies budget and up to 100 visible-line changes atomically
+under an expected revision. Stale revisions/imports reject edits; local fields
+remain available until explicit reload/discard. Over-budget edits can be saved
+for exploration, with exact overage and invalid review eligibility. Overview
+reads only valid nonempty in-budget drafts and links their actual saved plan.
+P7 order review/conversion stays unavailable; no PO is created or sent in P6.
+
+`/app/scenarios?planId=<uuid>` compares one supplier's additional 0–30 lead days
+against the same immutable plan inputs. It starts at zero delay; Reset returns
+the exact baseline. It does not mutate stock, suppliers, quantities, budget or
+orders. Viewers can inspect/compare; owners/operators alone save plans. Results
+identify the actual supplier/delay/revision, separately from changed form controls.
+Cover/gap display rounds once from original ratios, not rounded API values.
+
+```powershell
+corepack.cmd pnpm db:bundle p6
+```
+
+The owner reported successful application of the complete `artifacts/p6-upgrade.sql`
+in the isolated development project. It contains only additive 01000/01100, plus
+a compatible replacement of the valid-draft Overview budget reader. Do not rerun
+P2–P5 bundles. [P6 setup and manual checks](supabase/P6_SETUP.md) includes the
+sample math, saved editing/reset, two-tab revision and supplier-delay verification.
+All six new hosted RPCs reject anonymous execution (401/42501). Sample edit/reset/
+scenario and hosted two-tab checks were subsequently reported passed by the owner.
+
+Verified locally: 314 tests in 24 files, strict types, zero-warning lint and
+production build; 18 new PostgreSQL tests (115 across P2–P6). These exercise
+SQL/TypeScript allocation parity, packs, fractional rates, Unicode ordering,
+currency/overage beyond JavaScript's safe integer range, frozen evidence,
+idempotency/limits, atomic rollback, stale revisions/imports, role/tenant/anon
+boundaries and read-only scenarios. HTTP/forms cover validation, exact previews,
+saves, error recovery, duplicate-save prevention and scenario/reset behavior.
+
+Ten actual component states at 1440/1487/1024/390/320 widths passed 50 overflow/
+axe WCAG A/AA checks. Screenshots reviewed against S08/S09; source dates/table
+spacing were tightened, with numeric columns readable and horizontal scroll on
+small screens. These use fictional isolated PostgreSQL fixtures, not hosted E2E.
+A single local 500-product check created/read its plan in 3,832ms/345ms; this is
+not hosted/Vercel latency evidence. Production auth/no-store smoke and audit pass;
+all 14 reference hashes/actual logo bytes are preserved; browser output contains
+no server credential markers. No dependencies or environment variables added.
+
+Initial technical limits: 500 active products/plan, 100 rows/page or edit batch,
+20 new plans/hour/workspace. The existing PostgreSQL integer quantity range and
+numeric(14,2) budget range are enforced. No install, external AI/customer-data
+transmission, deployment, commit or push. Inherited P2 and release evaluation/
+performance/retention gates remain. P7 is now explicitly authorized; P8 remains gated.
+
+## P7 purchase-order drafts/export — 2026-11-11
+
+The owner accepted the final P6 checks and authorized P7. S08 now links a saved,
+valid plan to read-only supplier review at `/app/purchase-orders/review?planId=...`.
+Only explicit **Save drafts** creates orders. Importing CSVs, generating a plan
+and **Save working plan** do not create purchase orders; an empty S10 list is
+expected until conversion succeeds. Edit quantities in S08 and review in S11.
+
+Conversion internally checks editor membership, current revision/input freshness,
+packs, eligibility, positive snapshot costs and budget under workspace/plan locks.
+It atomically saves one draft per supplier and marks the plan converted; retries
+return the same IDs. Saved workspace/supplier/product names, costs, quantities,
+packs, lead times and reviewed source/revision are immutable document snapshots.
+S10 offers supplier/date/plan filters and bounded newest-first pages. S12 offers
+private formula-neutralized UTF-8 CSV and white browser Print / Save PDF styling.
+No supplier dispatch, payment, stock receipt, external AI or new dependency added.
+
+The owner reported applying `artifacts/p7-upgrade.sql` successfully. All three
+new hosted procedures reject anonymous calls (401/42501). The exact atomic bundle
+preserved an existing P6 plan in local PostgreSQL; repeat application was rejected
+without data loss. Never rerun P2–P6 or rewrite applied migrations.
+
+Full check passed 354 tests in 28 files (40 new P7 tests, including 13 PostgreSQL
+cases; 128 PostgreSQL tests across P2–P7), lint, types and production build.
+After visual refinements, targeted component/export retry tests and final lint/
+build were rerun. Local tests cover exact totals, revision/freshness guards,
+atomic rollback, idempotent replay, role/tenant/RLS boundaries, read-only review,
+CSV formula protection/Unicode/quoting, download recovery and explicit printing.
+The actual 418-row synthetic import pipeline produced two runtime drafts at
+34,370 +15,560 =49,930 and reused their IDs. This is not forecast accuracy proof.
+
+Local production smoke rejects unauthenticated pages/APIs/exports and uses private
+no-store responses; 31 client chunks contain no server-credential markers. The
+production dependency audit reports no known vulnerabilities. All 14 source image
+hashes and exact logo bytes are preserved. Existing P6 changes are preserved.
+
+Fifty responsive/axe component cases pass, including targeted rechecks after
+mobile currency/badge spacing fixes. The normal printed draft is one A4 page;
+a 100-line fixture preserves every SKU and total across seven pages. Raster
+inspection and white-corner checks verify fully white pages even with print
+backgrounds enabled. These are isolated fictional component/print fixtures.
+
+The owner reported all final hosted draft saving, two-tab retry, refresh, CSV and
+printing checks passed. **P7 is complete.** See [P7 checklist](supabase/P7_SETUP.md).
+Inherited release gates remain open. No deployment, commit or push was performed;
+P8 is not authorized. The local specification package remains intentionally ignored.

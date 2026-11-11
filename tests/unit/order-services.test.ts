@@ -1,0 +1,25 @@
+import { beforeEach,describe,expect,it,vi } from "vitest";
+import { NextRequest } from "next/server";
+import { AppError } from "@/lib/auth/errors";
+import { orderFixture } from "../fixtures/orders";
+vi.mock("server-only",()=>({}));vi.mock("@/server/auth/context",()=>({requireWorkspace:vi.fn()}));
+import { requireWorkspace } from "@/server/auth/context";
+import { convertPlan,readOrder,orderQuery } from "@/server/services/orders";
+import { POST } from "@/app/api/plans/[id]/convert/route";
+import { GET as exportGET } from "@/app/api/purchase-orders/[id]/export/route";
+import { GET as listGET } from "@/app/api/purchase-orders/route";
+const rpc=vi.fn(),ctx={workspace:{id:orderFixture.order.supplierId,role:"owner",is_sample:true},client:{rpc}} as unknown as Parameters<typeof readOrder>[0];
+const request=(body:unknown,origin="http://localhost")=>new NextRequest(`http://localhost/api/plans/${orderFixture.order.planId}/convert`,{method:"POST",headers:{origin,"content-type":"application/json"},body:JSON.stringify(body)});
+const params=Promise.resolve({id:orderFixture.order.planId});
+beforeEach(()=>{rpc.mockReset();vi.mocked(requireWorkspace).mockReset().mockResolvedValue(ctx);});
+describe("order APIs and service boundaries",()=>{
+  it("requires verified identity before document/list/export access",async()=>{vi.mocked(requireWorkspace).mockRejectedValue(new AppError(401,"UNAUTHENTICATED","Sign in."));const res=await exportGET(new NextRequest("http://localhost/api/purchase-orders/id/export?format=csv"),{params});expect(res.status).toBe(401);expect(res.headers.get("cache-control")).toContain("no-store");expect((await listGET(new NextRequest("http://localhost/api/purchase-orders"))).status).toBe(401);expect(rpc).not.toHaveBeenCalled();});
+  it("checks mutation origin before any database access",async()=>{const res=await POST(request({expectedRevision:0},"https://evil.example"),{params});expect(res.status).toBe(403);expect(rpc).not.toHaveBeenCalled();});
+  it("rejects client prices and stale revisions safely",async()=>{expect((await POST(request({expectedRevision:0,total:"1"}),{params})).status).toBe(400);rpc.mockResolvedValue({data:null,error:{code:"P0001",message:"STALE_REVISION"}});const res=await POST(request({expectedRevision:0}),{params});expect(res.status).toBe(409);expect((await res.json()).error.code).toBe("STALE_REVISION");});
+  it("returns new201/replayed200 IDs from the guarded RPC only",async()=>{rpc.mockResolvedValueOnce({data:{purchaseOrderIds:[orderFixture.order.id],alreadyConverted:false},error:null}).mockResolvedValueOnce({data:{purchaseOrderIds:[orderFixture.order.id],alreadyConverted:true},error:null});expect((await POST(request({expectedRevision:2}),{params})).status).toBe(201);expect((await POST(request({expectedRevision:2}),{params})).status).toBe(200);expect(rpc).toHaveBeenCalledWith("convert_plan_to_drafts",{p_org_id:ctx.workspace.id,p_plan_id:orderFixture.order.planId,p_expected_revision:2});});
+  it("blocks viewers in the service even when invoked outside a Route Handler",async()=>{await expect(convertPlan({...ctx,workspace:{...ctx.workspace,role:"viewer"}},orderFixture.order.planId,0)).rejects.toMatchObject({status:403});expect(rpc).not.toHaveBeenCalled();});
+  it("returns404 for invalid or inaccessible document identity",async()=>{await expect(readOrder(ctx,"../foreign")).rejects.toMatchObject({status:404});expect(rpc).not.toHaveBeenCalled();rpc.mockResolvedValue({data:null,error:null});await expect(readOrder(ctx,orderFixture.order.id)).rejects.toMatchObject({status:404});});
+  it("exports private UTF-8 attachment with a trusted ID filename and safe formulas",async()=>{const fixture=structuredClone(orderFixture);fixture.order.document.supplierName="=CMD()";rpc.mockResolvedValue({data:fixture,error:null});const res=await exportGET(new NextRequest("http://localhost/api/purchase-orders/id/export?format=csv"),{params:Promise.resolve({id:fixture.order.id})});expect(res.status).toBe(200);expect(res.headers.get("content-type")).toBe("text/csv; charset=utf-8");expect(res.headers.get("content-disposition")).toContain(fixture.order.id);expect(res.headers.get("cache-control")).toContain("no-store");expect(res.headers.get("x-content-type-options")).toBe("nosniff");expect(await res.text()).toContain("'=CMD()");});
+  it("rejects duplicate/unsupported export formats and list query fields",async()=>{for(const query of ["format=pdf","format=csv&format=csv","format=csv&extra=1"]){expect((await exportGET(new NextRequest(`http://localhost/api/purchase-orders/id/export?${query}`),{params})).status).toBe(400);}expect(()=>orderQuery(new URLSearchParams("limit=1&limit=2"))).toThrow();expect(()=>orderQuery({status:"sent"})).toThrow();});
+  it("sanitizes raw database errors",async()=>{rpc.mockResolvedValue({data:null,error:{code:"XX000",message:"private SQL credentials"}});const res=await POST(request({expectedRevision:0}),{params});expect(res.status).toBe(503);expect(await res.text()).not.toContain("credentials");});
+});

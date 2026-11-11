@@ -1,6 +1,6 @@
 import type { Workspace, WorkspaceRole } from "@/lib/auth/contracts";
 
-// Checked P2/P3 query contract, not a complete generated database schema.
+// Checked P2–P7 query contract, not a complete generated database schema.
 // Reconcile with CLI-generated hosted types before the production release gate.
 type ReadTable<Row> = { Row: Row; Insert: never; Update: never; Relationships: [] };
 export type Profile = { user_id: string; display_name: string; updated_at: string };
@@ -19,6 +19,9 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: {
+      convert_plan_to_drafts: {Args:{p_org_id:string;p_plan_id:string;p_expected_revision:number};Returns:Json};
+      read_purchase_order: {Args:{p_org_id:string;p_order_id:string};Returns:Json};
+      list_purchase_orders: {Args:{p_org_id:string;p_supplier_id?:string;p_from?:string;p_to?:string;p_plan_id?:string;p_limit?:number;p_before?:string};Returns:Json};
       create_workspace: { Args: { p_name: string; p_location: string; p_is_sample?: boolean }; Returns: string };
       update_workspace_settings: { Args: { p_org_id: string; p_name: string; p_location: string }; Returns: Workspace[] };
       create_sample_workspace: { Args: Record<string,never>; Returns:string };
@@ -31,6 +34,12 @@ export type Database = {
       generate_forecast: {Args:{p_org_id:string;p_as_of_date:string;p_horizon_days:number};Returns:Json};
       list_forecast_runs: {Args:{p_org_id:string;p_limit?:number;p_before?:string};Returns:Json};
       read_forecast_run: {Args:{p_org_id:string;p_run_id:string;p_limit?:number;p_after?:string;p_product_id?:string};Returns:Json};
+      create_replenishment_plan: {Args:{p_org_id:string;p_plan_id:string;p_forecast_run_id:string;p_budget:string;p_review?:number;p_safety?:number};Returns:Json};
+      read_plan_context: {Args:{p_org_id:string;p_plan_id:string};Returns:Json};
+      list_replenishment_plans: {Args:{p_org_id:string;p_limit?:number;p_before?:string};Returns:Json};
+      edit_replenishment_plan: {Args:{p_org_id:string;p_plan_id:string;p_expected_revision:number;p_budget?:string;p_quantities?:Json;p_reset?:boolean};Returns:Json};
+      set_plan_line_quantity: {Args:{p_org_id:string;p_plan_id:string;p_line_id:string;p_approved_qty:number;p_expected_revision:number};Returns:Json};
+      set_plan_budget: {Args:{p_org_id:string;p_plan_id:string;p_budget:string;p_expected_revision:number};Returns:Json};
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;

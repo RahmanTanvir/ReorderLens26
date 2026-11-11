@@ -1,8 +1,9 @@
 # ReorderLens engineering instructions
 
-Implement only the phase explicitly authorized by the owner. P5 is completed;
-the owner reported all final hosted checks passed. P2's accepted release
-follow-ups remain recorded. Do not begin P6 or later without instruction.
+Implement only the phase explicitly authorized by the owner. P7 (human-reviewed
+PO drafts and export) is complete after local checks and owner-reported hosted
+verification. P2's accepted release follow-ups remain recorded. Do not begin P8
+or later without explicit instruction.
 
 Before product work, read `ReorderLens_Docs/AGENTS.md` and
 `ReorderLens_Docs/CODEX_INSTRUCTIONS.md`, then the decision register and roadmap.

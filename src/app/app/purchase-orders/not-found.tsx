@@ -1,0 +1,2 @@
+import Link from "next/link";
+export default function OrderNotFound(){return <div className="space-y-4"><h1 className="text-2xl font-bold">Draft unavailable</h1><p className="text-sm text-muted-foreground">This document is not available in the selected workspace.</p><Link href="/app/purchase-orders" className="inline-flex min-h-11 items-center text-primary underline">View saved drafts</Link></div>;}

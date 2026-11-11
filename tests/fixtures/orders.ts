@@ -1,0 +1,3 @@
+import type { OrderRead } from "@/lib/orders/contracts";
+import { planningId as id } from "./planning";
+export const orderFixture:OrderRead={order:{id:id(800),planId:id(801),supplierId:id(802),orderNumber:"RL-PO-QA-800",status:"draft",total:"13650.00",createdAt:"2026-11-11T10:00:00Z",lineCount:1,units:"65",document:{version:1,workspaceName:"Fictional QA workspace",workspaceLocation:"Dhaka",currency:"BDT",timezone:"Asia/Dhaka",isSample:true,supplierName:"Fictional QA supplier",planRevision:2,inputSnapshotAt:"2026-11-11T09:00:00Z",sourceDate:"2026-11-11",method:"sample_fixture"}},items:[{id:id(803),productId:id(804),sku:"QA-OIL",name:"Fictional QA Oil",quantity:65,unitCost:"210.00",lineTotal:"13650.00",leadDays:6,packMultiple:5}]};

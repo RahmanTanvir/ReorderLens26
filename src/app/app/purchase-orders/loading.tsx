@@ -1,0 +1,1 @@
+export default function LoadingOrders(){return <div role="status" aria-live="polite" className="space-y-5"><h1 className="text-2xl font-semibold">Loading purchase orders…</h1><div className="h-60 animate-pulse rounded-xl border bg-card motion-reduce:animate-none"/></div>;}

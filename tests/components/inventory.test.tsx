@@ -13,7 +13,7 @@ describe("inventory product interactions",()=>{
   it("keeps filter/search/sort state in GET controls and detail return links",()=>{
     render(<InventoryWorkspace data={list} query={inventoryQuerySchema.parse({q:"Oil",status:"at_risk",supplierId:list.suppliers[0].id,sort:"risk"})}/>);
     expect(screen.getByRole("form",{name:"Inventory filters"})).toHaveAttribute("method","get");expect(screen.getByLabelText("Search inventory")).toHaveValue("Oil");expect(screen.getByLabelText("Sort inventory")).toHaveValue("risk");expect(screen.getByRole("button",{name:"Apply filters"})).toBeEnabled();
-    const link=screen.getByRole("link",{name:"Fictional QA Oil"});expect(link.getAttribute("href")).toContain("back=");expect(screen.getByRole("button",{name:"Open Replenishment Planner"})).toBeDisabled();
+    const link=screen.getByRole("link",{name:"Fictional QA Oil"});expect(link.getAttribute("href")).toContain("back=");expect(screen.getByRole("link",{name:"Open Replenishment Planner"})).toHaveAttribute("href","/app/replenishment");
   });
   it("renders unknown demand separately from healthy and exposes a useful empty filter state",()=>{
     render(<InventoryWorkspace data={{...list,items:[],matchCount:0,summary:{...list.summary,at_risk:0,unknown:1}}} query={inventoryQuerySchema.parse({q:"unmatched"})}/>);

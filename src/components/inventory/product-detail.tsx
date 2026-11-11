@@ -5,7 +5,7 @@ import { RiskBadge } from "@/components/inventory/inventory-table";
 import { PageHeader } from "@/components/shared/page-header";
 import { MetricStrip } from "@/components/shared/metric-strip";
 import { Alert } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Table,TableBody,TableCell,TableHead,TableHeader,TableRow } from "@/components/ui/table";
 import { inventoryBack,type ProductDetail } from "@/lib/inventory/contracts";
 
@@ -24,7 +24,7 @@ export function DemandHistory({data,periodLabel="Recorded sales from the last 28
 export function ProductDetails({data,back}:{data:ProductDetail;back?:string}) {
   const {item}=data;const stale=item.warnings.includes("STALE_SNAPSHOT")||item.warnings.includes("STALE_FORECAST");
   const units=item.demand.quality==="sufficient"?item.demand.dailyUnits:null;
-  return <div className="space-y-6"><Link href={inventoryBack(back)} className="inline-flex min-h-11 items-center gap-2 rounded-sm text-xs text-secondary-foreground hover:text-primary"><ArrowLeft aria-hidden="true" className="size-4"/>Back to Inventory</Link><PageHeader title={item.name} description={`${item.sku} · ${item.supplier.name}`} actions={<Button disabled aria-describedby="product-planner-note"><ShoppingCart aria-hidden="true"/>View in Planner</Button>}/><span id="product-planner-note" className="sr-only">Replenishment planning is not available until P6.</span>
+  return <div className="space-y-6"><Link href={inventoryBack(back)} className="inline-flex min-h-11 items-center gap-2 rounded-sm text-xs text-secondary-foreground hover:text-primary"><ArrowLeft aria-hidden="true" className="size-4"/>Back to Inventory</Link><PageHeader title={item.name} description={`${item.sku} · ${item.supplier.name}`} actions={<Link href="/app/replenishment" className={buttonVariants()}><ShoppingCart aria-hidden="true"/>View in Planner</Link>}/>
     <nav aria-label="Product sections" className="flex flex-wrap gap-5 border-b text-xs text-secondary-foreground">{[["history","Demand history"],["evidence","Forecast evidence"],["supplier","Supplier details"]].map(([id,title])=><a key={id} href={`#${id}`} className="inline-flex min-h-11 items-center rounded-sm hover:text-primary">{title}</a>)}</nav>
     <MetricStrip items={[{label:"On-hand units",value:item.stock?String(item.stock.onHand):null},{label:item.isSample?"Illustrative daily demand":"Estimated daily demand",value:units?.replace(/(\.\d*?)0+$/, "$1").replace(/\.$/,"")??null},{label:"Estimated stock cover",value:displayCover(item)!==null?`${displayCover(item)} days`:item.risk.noDemand?"No recent demand":null},{label:"Supplier lead time",value:`${item.effectiveLeadDays} days`}]}/>
     {stale?<Alert>Source data is stale. {item.warnings.includes("STALE_SNAPSHOT")?"The stock snapshot is more than seven days old. ":""}{item.warnings.includes("STALE_FORECAST")?"A later import invalidated this forecast. ":""}The estimate remains visible for review.</Alert>:null}{item.warnings.includes("FUTURE_SNAPSHOT_IGNORED")?<Alert>A future-dated snapshot was excluded from current stock. Review the source dates in your import.</Alert>:null}

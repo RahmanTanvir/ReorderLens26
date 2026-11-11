@@ -30,12 +30,18 @@ export async function readJson<T>(request: NextRequest, schema: z.ZodType<T>, ma
   return parsed.data;
 }
 
-export function endpoint(handler: (request: NextRequest) => Promise<{ data: unknown; isSample?: boolean; status?: number }>, mutation = false) {
+export function endpoint(handler: (request: NextRequest) => Promise<{ data?: unknown; response?: Response; isSample?: boolean; status?: number }>, mutation = false) {
   return async (request: NextRequest) => {
     const requestId = crypto.randomUUID();
     try {
       if (mutation) assertSameOrigin(request.headers.get("origin"), request.headers.get("referer"), request.nextUrl.origin);
       const result = await handler(request);
+      if (result.response) {
+        const headers = new Headers(result.response.headers);
+        for (const [key,value] of Object.entries(privateHeaders)) headers.set(key,value);
+        headers.set("X-Request-Id",requestId);
+        return new Response(result.response.body,{status:result.response.status,headers});
+      }
       return NextResponse.json({ data: result.data, meta: { requestId, isSample: result.isSample ?? false } }, { status: result.status ?? 200, headers: { ...privateHeaders, "X-Request-Id": requestId } });
     } catch (error) {
       const failure = error instanceof AppError ? error : new AppError(500, "INTERNAL_ERROR", "Something went wrong. Please try again.");

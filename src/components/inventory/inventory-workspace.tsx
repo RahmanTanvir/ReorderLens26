@@ -16,7 +16,7 @@ export function InventoryWarnings({data}:{data:InventoryList}) {
 }
 export function InventoryWorkspace({data,query}:{data:InventoryList;query:InventoryQuery}) {
   const back=inventoryHref(query,query.cursor);
-  return <div className="space-y-6"><PageHeader title="Inventory" description="Monitor stock levels, coverage, and inventory risks across your products." actions={<><Link href="/app/data" className={buttonVariants({variant:"outline"})}><Upload aria-hidden="true"/>Import Data</Link><Button disabled title="Replenishment planning becomes available in P6" aria-describedby="planner-unavailable"><ShoppingCart aria-hidden="true"/>Open Replenishment Planner</Button></>}/><p id="planner-unavailable" className="sr-only">Replenishment planning is not available yet.</p>
+  return <div className="space-y-6"><PageHeader title="Inventory" description="Monitor stock levels, coverage, and inventory risks across your products." actions={<><Link href="/app/data" className={buttonVariants({variant:"outline"})}><Upload aria-hidden="true"/>Import Data</Link><Link href="/app/replenishment" className={buttonVariants()}><ShoppingCart aria-hidden="true"/>Open Replenishment Planner</Link></>}/>
     <InventorySummary data={data}/><InventoryWarnings data={data}/>
     <form action="/app/inventory" method="get" aria-label="Inventory filters" className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(200px,1fr)_180px_170px_180px_auto]">
       <div className="relative"><Search aria-hidden="true" className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"/><Input name="q" aria-label="Search inventory" placeholder="Search product name or SKU…" defaultValue={query.q} maxLength={500} className="pl-10"/></div>

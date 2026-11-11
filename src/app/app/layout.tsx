@@ -12,5 +12,5 @@ export default async function ProtectedLayout({ children }: { children: ReactNod
   const latest=await context.client.from("import_jobs").select("committed_at").eq("org_id",context.workspace.id).eq("status","committed").order("committed_at",{ascending:false}).limit(1);databaseFailure(latest.error);
   const timestamp=latest.data?.[0]?.committed_at;
   const dataFreshness=context.workspace.is_sample?"Sample source · 9 Nov 2026":timestamp?`Import confirmed ${new Intl.DateTimeFormat("en-GB",{timeZone:"Asia/Dhaka",dateStyle:"medium"}).format(new Date(timestamp))}`:undefined;
-  return <AppShell dataFreshness={dataFreshness} workspace={context.workspace} workspaces={context.workspaces} account={{ displayName: profile?.display_name || "Your account", role: context.workspace.role }} availablePaths={["/app/overview", "/app/inventory", "/app/forecasts", "/app/settings", "/app/data"]}>{children}</AppShell>;
+  return <AppShell dataFreshness={dataFreshness} workspace={context.workspace} workspaces={context.workspaces} account={{ displayName: profile?.display_name || "Your account", role: context.workspace.role }} availablePaths={["/app/overview", "/app/inventory", "/app/forecasts", "/app/replenishment", "/app/scenarios", "/app/purchase-orders", "/app/settings", "/app/data"]}>{children}</AppShell>;
 }

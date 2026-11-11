@@ -15,7 +15,7 @@ const push=vi.fn(),refresh=vi.fn();beforeEach(()=>{push.mockReset();refresh.mock
 const props={today:"2026-11-10",isSample:false,canGenerate:true,runs:[forecastRun],runsCursor:null,detail:forecastDetail,query:forecastQuerySchema.parse({})};
 describe("forecast workflows",()=>{
   it("shows real saved estimates/provenance without an uncertainty or accuracy claim",async()=>{
-    const {container}=render(<ForecastWorkspace {...props}/>);expect(screen.getByText("Run complete")).toBeInTheDocument();expect(screen.getByLabelText("Saved runs")).toHaveValue(forecastId);expect(screen.getByRole("button",{name:"Review Replenishment"})).toBeDisabled();expect(screen.getByRole("img",{name:/Saved observations/})).toBeInTheDocument();expect(screen.getByRole("link",{name:"View evidence for Fictional QA product"}).getAttribute("href")).toContain("productId=");
+    const {container}=render(<ForecastWorkspace {...props}/>);expect(screen.getByText("Run complete")).toBeInTheDocument();expect(screen.getByLabelText("Saved runs")).toHaveValue(forecastId);expect(screen.getByRole("link",{name:"Review Replenishment"})).toHaveAttribute("href",`/app/replenishment?forecastRunId=${forecastId}`);expect(screen.getByRole("img",{name:/Saved observations/})).toBeInTheDocument();expect(screen.getByRole("link",{name:"View evidence for Fictional QA product"}).getAttribute("href")).toContain("productId=");
     const result=await axe.run(container,{runOnly:{type:"rule",values:["label","aria-prohibited-attr","aria-valid-attr-value","svg-img-alt"]}});expect(result.violations).toEqual([]);
   });
   it("generates chosen horizon and opens the persisted run",async()=>{
