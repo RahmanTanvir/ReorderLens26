@@ -4,7 +4,7 @@ import { Alert } from "@/components/ui/alert";
 import { AppError } from "@/lib/auth/errors";
 import { requirePageWorkspace } from "@/server/auth/context";
 import { readPlanContext } from "@/server/services/planning";
-import { z } from "zod";
+import { z } from "@/lib/validation/zod";
 export const metadata={title:"Review Purchase Orders — ReorderLens"};
 export default async function ReviewPage({searchParams}:PageProps<"/app/purchase-orders/review">){
   const context=await requirePageWorkspace();

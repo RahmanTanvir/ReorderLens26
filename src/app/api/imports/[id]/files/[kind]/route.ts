@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/validation/zod";
 import type { NextRequest } from "next/server";
 import { AppError } from "@/lib/auth/errors";
 import { fileKinds } from "@/lib/imports/contracts";

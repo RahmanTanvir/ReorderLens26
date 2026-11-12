@@ -1,6 +1,6 @@
 import type { Workspace, WorkspaceRole } from "@/lib/auth/contracts";
 
-// Checked P2–P7 query contract, not a complete generated database schema.
+// Checked P2–P8 query contract, not a complete generated database schema.
 // Reconcile with CLI-generated hosted types before the production release gate.
 type ReadTable<Row> = { Row: Row; Insert: never; Update: never; Relationships: [] };
 export type Profile = { user_id: string; display_name: string; updated_at: string };
@@ -19,6 +19,9 @@ export type Database = {
     };
     Views: Record<string, never>;
     Functions: {
+      reserve_assistant_request: {Args:{p_org_id:string;p_request_id:string;p_context_hash:string};Returns:Json};
+      reserve_assistant_provider: {Args:{p_org_id:string;p_request_id:string;p_slots:number};Returns:boolean};
+      complete_assistant_request: {Args:{p_org_id:string;p_request_id:string;p_kind:string;p_model?:string;p_latency?:number;p_tokens_in?:number;p_tokens_out?:number};Returns:boolean};
       convert_plan_to_drafts: {Args:{p_org_id:string;p_plan_id:string;p_expected_revision:number};Returns:Json};
       read_purchase_order: {Args:{p_org_id:string;p_order_id:string};Returns:Json};
       list_purchase_orders: {Args:{p_org_id:string;p_supplier_id?:string;p_from?:string;p_to?:string;p_plan_id?:string;p_limit?:number;p_before?:string};Returns:Json};

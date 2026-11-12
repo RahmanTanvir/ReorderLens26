@@ -2,7 +2,7 @@ import "server-only";
 
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { z } from "zod";
+import { z } from "@/lib/validation/zod";
 
 import { type MembershipWorkspace, roleSchema, type WorkspaceRole } from "@/lib/auth/contracts";
 import { AppError } from "@/lib/auth/errors";

@@ -54,8 +54,12 @@ describe("bootstrap configuration", () => {
     expect(Object.keys(result).sort()).toEqual(["appUrl", "supabase"]);
   });
 
-  it.each(["true", "1", "FALSE", "yes"])("cannot enable external AI in P0: %s", (flag) => {
+  it.each(["1", "FALSE", "yes"])("rejects invalid external AI flags: %s", (flag) => {
     expect(() => parseServerEnvironment({ AI_ASSISTANT_ENABLED: flag })).toThrow("AI_ASSISTANT_ENABLED");
+  });
+
+  it("separates external inference from the explicit sample evaluation gate",()=>{
+    const result=parseServerEnvironment({AI_ASSISTANT_ENABLED:"true"});expect(result.externalAiEnabled).toBe(true);expect(result.openRouter.sampleEvaluation).toBe(false);expect(result.openRouter.models).toEqual([]);
   });
 
   it("does not enable inference merely because a provider key exists", () => {

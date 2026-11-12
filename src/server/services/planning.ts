@@ -1,5 +1,5 @@
 import "server-only";
-import { z } from "zod";
+import { z } from "@/lib/validation/zod";
 import { AppError } from "@/lib/auth/errors";
 import { compareDelay } from "@/domain/scenario/compare";
 import { createdPlanSchema,planContextSchema,planListSchema,planningQuerySchema,scenarioResultSchema,type CreatePlan,type PlanningQuery } from "@/lib/planning/contracts";

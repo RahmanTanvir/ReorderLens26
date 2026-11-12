@@ -5,15 +5,22 @@ import { safeNextPath } from "@/lib/auth/contracts";
 import { privateHeaders } from "@/lib/auth/errors";
 import type { Database } from "@/lib/supabase/database.types";
 import { parsePublicEnvironment } from "@/lib/validation/environment";
+import { contentPolicy } from "@/lib/security/content-policy";
 
 export async function proxy(request: NextRequest) {
-  let refreshed = NextResponse.next({ request });
+  const nonce=Buffer.from(crypto.randomUUID()).toString("base64");
+  const policy=contentPolicy(nonce,process.env.NODE_ENV==="development",request.nextUrl.protocol==="https:");
+  const requestHeaders=new Headers(request.headers);
+  // Replace spoofed nonce/policy headers before Next renders its inline scripts.
+  requestHeaders.set("x-nonce",nonce);
+  requestHeaders.set("Content-Security-Policy",policy);
+  let refreshed = NextResponse.next({ request: { headers:requestHeaders } });
   const path = request.nextUrl.pathname;
   const protectedPage = path === "/setup" || path === "/app" || path.startsWith("/app/");
   const protectedApi = path === "/api" || path.startsWith("/api/");
   const environment = parsePublicEnvironment(process.env);
   let authenticated = false;
-  if (environment.supabase.configured) {
+  if (environment.supabase.configured&&(protectedPage||protectedApi||["/login","/signup"].includes(path)||path.startsWith("/auth/"))) {
     const client = createServerClient<Database>(environment.supabase.url, environment.supabase.publishableKey, {
       cookieOptions: { httpOnly: true, secure: new URL(environment.appUrl).protocol === "https:", sameSite: "lax", path: "/" },
       global: { fetch: (input, init) => fetch(input, { ...init, cache: "no-store", signal: init?.signal ?? AbortSignal.timeout(15000) }) },
@@ -21,8 +28,9 @@ export async function proxy(request: NextRequest) {
         getAll: () => request.cookies.getAll(),
         setAll: (values, cacheHeaders) => {
           values.forEach(({ name, value }) => request.cookies.set(name, value));
+          requestHeaders.set("cookie",request.headers.get("cookie")??"");
           const previousCookies = refreshed.cookies.getAll();
-          refreshed = NextResponse.next({ request });
+          refreshed = NextResponse.next({ request: { headers:requestHeaders } });
           previousCookies.forEach((cookie) => refreshed.cookies.set(cookie));
           values.forEach(({ name, value, options }) => refreshed.cookies.set(name, value, options));
           Object.entries(cacheHeaders).forEach(([name, value]) => refreshed.headers.set(name, value));
@@ -40,7 +48,9 @@ export async function proxy(request: NextRequest) {
   }
   if (response !== refreshed) refreshed.cookies.getAll().forEach((cookie) => response.cookies.set(cookie));
   Object.entries(privateHeaders).forEach(([name, value]) => response.headers.set(name, value));
+  response.headers.set("Content-Security-Policy",policy);
+  if(path.startsWith("/auth/"))response.headers.set("Referrer-Policy","no-referrer");
   return response;
 }
 
-export const config = { matcher: ["/login", "/signup", "/setup", "/app/:path*", "/api/:path*", "/auth/:path*"] };
+export const config = { matcher: ["/((?!_next/static|_next/image|branding/|fonts/|templates/|favicon.ico|robots.txt).*)"] };

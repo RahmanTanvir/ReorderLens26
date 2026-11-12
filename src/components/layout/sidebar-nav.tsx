@@ -41,7 +41,7 @@ export function SidebarNav({ activePath, availablePaths = [], previewHref, onNav
           <p className="mb-3 px-3 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Data &amp; setup</p>
           {item("data")}
         </div>
-        <p id={availabilityId} className="mt-7 px-3 text-xs leading-5 text-muted-foreground">Other sections become available as their workflows are connected.</p>
+        {navigationItems.some(entry=>!availablePaths.includes(entry.href))?<p id={availabilityId} className="mt-7 px-3 text-xs leading-5 text-muted-foreground">Other sections become available as their workflows are connected.</p>:null}
       </nav>
       <div className="shrink-0 space-y-4 px-3 py-5">
         {item("settings")}

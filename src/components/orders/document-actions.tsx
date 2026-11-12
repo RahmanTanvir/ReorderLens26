@@ -3,10 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";
 import { useMutation } from "@/lib/client/use-mutation";
 import { RequestError } from "@/lib/client/request";
+import { useWorkspaceId } from "@/components/workspace/workspace-request-provider";
 export function DocumentActions({orderId}:{orderId:string}){
-  const mutation=useMutation();
+  const mutation=useMutation(),workspaceId=useWorkspaceId();
   async function download(){await mutation.run(async()=>{
-    const response=await fetch(`/api/purchase-orders/${orderId}/export?format=csv`,{credentials:"same-origin",cache:"no-store",signal:AbortSignal.timeout(30000)});
+    const response=await fetch(`/api/purchase-orders/${orderId}/export?format=csv`,{credentials:"same-origin",cache:"no-store",headers:workspaceId?{"X-Workspace-Id":workspaceId}:{},signal:AbortSignal.timeout(30000)});
     if(!response.ok){let message="The export could not be downloaded. Try again.";try{const body=await response.json();if(typeof body?.error?.message==="string")message=body.error.message;}catch{/* Safe fallback for non-JSON failures. */}throw new RequestError(message,"EXPORT_FAILED");}
     if(!response.headers.get("Content-Type")?.startsWith("text/csv"))throw new RequestError("The export response was invalid. Try again.","EXPORT_FAILED");
     const blob=await response.blob();if(blob.size>2097152)throw new RequestError("This export exceeds the supported size.","EXPORT_FAILED");

@@ -1,4 +1,5 @@
 "use client";
+import { useWorkspaceRequest } from "@/components/workspace/workspace-request-provider";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -6,10 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Alert } from "@/components/ui/alert";
 import { generateForecastSchema,generationSchema,type ForecastRun } from "@/lib/forecast/contracts";
-import { requestJson } from "@/lib/client/request";
+
 import { useMutation } from "@/lib/client/use-mutation";
 
 export function ForecastControls({today,run,canGenerate,isSample}:{today:string;run:ForecastRun|null;canGenerate:boolean;isSample:boolean}) {
+  const requestJson=useWorkspaceRequest();
   const router=useRouter(),mutation=useMutation();
   const [asOfDate,setDate]=useState(run?.asOfDate??today),[horizon,setHorizon]=useState(String(run?.horizonDays??7));
   const [saved,setSaved]=useState<string|null>(null);

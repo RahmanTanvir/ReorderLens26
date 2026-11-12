@@ -1,6 +1,6 @@
 import "server-only";
 import { createHash } from "node:crypto";
-import { z } from "zod";
+import { z } from "@/lib/validation/zod";
 import type { NextRequest } from "next/server";
 import { inventoryItem } from "@/domain/inventory/risk";
 import { AppError } from "@/lib/auth/errors";

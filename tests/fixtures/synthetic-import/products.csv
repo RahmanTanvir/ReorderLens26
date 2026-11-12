@@ -1,0 +1,9 @@
+sku,name,supplier_name,purchase_cost,lead_time_days_override,pack_multiple
+QA-101,Fictional QA Rice 5 kg,Fictional QA Dhaka Wholesale,520,,5
+QA-102,Fictional QA Oil 1 L,Fictional QA Eastern Essentials,210,,5
+QA-103,Fictional QA Laundry Powder,Fictional QA Local Traders,165,,1
+QA-104,Fictional QA Milk Powder,Fictional QA Eastern Essentials,430,3,2
+QA-105,Fictional QA Tea,Fictional QA Local Traders,150,7,1
+QA-106,Fictional QA Noodles,Fictional QA Dhaka Wholesale,95,5,6
+QA-107,Fictional QA Chickpeas,Fictional QA Local Traders,140,,1
+QA-108,Fictional QA Soap,Fictional QA Local Traders,55,3,1

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { Info, Sparkles } from "lucide-react";
+import { Info } from "lucide-react";
+import { InsightTrigger } from "@/components/insight/insight-provider";
 
 import { WorkspaceSwitcher } from "@/components/layout/workspace-switcher";
 import { Button } from "@/components/ui/button";
@@ -21,10 +22,7 @@ export function TopBar({ menuTrigger, workspace, workspaces = [], dataFreshness 
           </Tooltip>
         </div>
       </div>
-      <span id="assistant-note" className="sr-only">Read-only explanations are not available yet.</span>
-      <Button variant="outline" disabled aria-label="Ask ReorderLens (unavailable)" aria-describedby="assistant-note" title="Read-only explanations are not connected yet" className="size-11 px-0 text-primary sm:w-auto sm:px-3 md:h-10">
-        <Sparkles aria-hidden="true" /><span className="hidden sm:inline">Ask ReorderLens</span>
-      </Button>
+      <InsightTrigger className="shrink-0 text-primary [&_span]:hidden sm:[&_span]:inline" />
     </header>
   );
 }

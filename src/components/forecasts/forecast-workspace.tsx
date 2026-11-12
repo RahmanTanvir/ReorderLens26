@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { InsightTrigger } from "@/components/insight/insight-provider";
 import { ChartNoAxesCombined } from "lucide-react";
 import { ForecastControls } from "@/components/forecasts/forecast-controls";
 import { DemandHistory } from "@/components/inventory/product-detail";
@@ -17,7 +18,7 @@ export function ForecastWorkspace({today,isSample,canGenerate,runs,runsCursor,de
   const run=detail?.run??null,selected=detail?.selected??null;
   // A selected old run may be outside the current run-list page.
   const options=run&&!runs.some(item=>item.id===run.id)?[run,...runs]:runs;
-  return <div className="space-y-6"><PageHeader title="Demand forecasts" description="Review the demand evidence behind your next replenishment decision." actions={<Link href={run?`/app/replenishment?forecastRunId=${run.id}`:"/app/replenishment"} className={buttonVariants()}>Review Replenishment</Link>}/>
+  return <div className="space-y-6"><PageHeader title="Demand forecasts" description="Review the demand evidence behind your next replenishment decision." actions={<><InsightTrigger context={{screen:"forecasts",runId:run?.id,productId:selected?.item.productId}} message="Explain this forecast estimate" label="Explain estimate"/><Link href={run?`/app/replenishment?forecastRunId=${run.id}`:"/app/replenishment"} className={buttonVariants()}>Review Replenishment</Link></>}/>
     <ForecastControls key={run?.id??"new"} today={today} run={run} canGenerate={canGenerate} isSample={isSample}/>
     {options.length?<section className="flex flex-wrap items-end justify-between gap-4"><form key={run?.id??"empty"} action="/app/forecasts" className="flex min-w-0 flex-wrap items-end gap-3"><div className="min-w-0"><label htmlFor="saved-forecast" className="mb-2 block text-xs font-medium">Saved runs</label><Select id="saved-forecast" name="runId" defaultValue={run?.id??options[0].id} className="max-w-full sm:min-w-96">{options.map(item=><option key={item.id} value={item.id}>{item.asOfDate} · {item.horizonDays} days · {item.status} · {item.id.slice(0,8)}</option>)}</Select></div><Button type="submit" variant="outline">Open saved run</Button></form><div className="flex gap-4 text-xs"><Link className="inline-flex min-h-11 items-center rounded-sm text-primary underline" href="/app/forecasts">Latest runs</Link>{runsCursor?<Link className="inline-flex min-h-11 items-center rounded-sm text-primary underline" href={`/app/forecasts?runsCursor=${runsCursor}`}>Older runs →</Link>:null}</div></section>:null}
     {!detail?<div className="rounded-xl border bg-card"><EmptyState icon={<ChartNoAxesCombined/>} title="No saved forecast runs" description="Import products and recorded sales, then generate a baseline. Missing history will be reported as insufficient data." action={<Link href="/app/data" className={buttonVariants({variant:"outline"})}>Review imported data</Link>}/></div>:<>

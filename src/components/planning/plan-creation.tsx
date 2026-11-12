@@ -1,4 +1,5 @@
 "use client";
+import { useWorkspaceRequest } from "@/components/workspace/workspace-request-provider";
 import { useRef,useState } from "react";
 import { useRouter } from "next/navigation";
 import { Alert } from "@/components/ui/alert";
@@ -6,11 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { useMutation } from "@/lib/client/use-mutation";
-import { requestJson } from "@/lib/client/request";
+
 import { createPlanSchema,createdPlanSchema } from "@/lib/planning/contracts";
 import type { ForecastRun } from "@/lib/forecast/contracts";
 
 export function PlanCreation({runs,selectedRunId,canCreate,isSample}:{runs:ForecastRun[];selectedRunId?:string;canCreate:boolean;isSample:boolean}) {
+  const requestJson=useWorkspaceRequest();
   const [runId,setRun]=useState(selectedRunId??runs.find(run=>run.summary.sufficient>0)?.id??runs[0]?.id??""),[budget,setBudget]=useState("50000.00"),[review,setReview]=useState("7"),[safety,setSafety]=useState("2");
   const mutation=useMutation(),router=useRouter(),identity=useRef<{key:string;id:string}|null>(null);
   const selected=runs.find(run=>run.id===runId),ready=canCreate&&selected?.status==="succeeded"&&selected.summary.sufficient>0;

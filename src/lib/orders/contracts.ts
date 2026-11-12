@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/validation/zod";
 import { moneySchema,revisionSchema } from "@/lib/planning/contracts";
 
 const amount=z.string().regex(/^\d+(\.\d{1,2})?$/);

@@ -15,6 +15,17 @@ beforeEach(() => {
 });
 
 describe("proxy session boundary", () => {
+  it("replaces attacker nonce headers and generates a fresh CSP for each response",async()=>{
+    const request=()=>new NextRequest("http://localhost:3000/preview",{headers:{"x-nonce":"attacker","Content-Security-Policy":"script-src *"}});
+    const first=await proxy(request()),second=await proxy(request());
+    const policy=first.headers.get("Content-Security-Policy")!;
+    expect(policy).toContain("'strict-dynamic'");expect(policy).toContain("form-action 'self'");
+    expect(policy).not.toContain("attacker");expect(policy).not.toContain("'unsafe-eval'");
+    expect(second.headers.get("Content-Security-Policy")).not.toBe(policy);
+    expect(first.headers.get("x-middleware-request-content-security-policy")).toBe(policy);
+    expect(first.headers.get("x-middleware-request-x-nonce")).not.toBe("attacker");
+    expect(first.headers.get("cache-control")).toContain("no-store");
+  });
   it("redirects protected deep links without configured/verified access", async () => {
     const response = await proxy(new NextRequest("http://localhost:3000/app/settings"));
     expect(response.status).toBe(307);

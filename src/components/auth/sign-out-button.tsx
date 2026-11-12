@@ -1,7 +1,7 @@
 "use client";
 
 import { LogOut } from "lucide-react";
-import { z } from "zod";
+import { z } from "@/lib/validation/zod";
 
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";

@@ -2,7 +2,7 @@ import "server-only";
 
 import { createHash } from "node:crypto";
 import type { NextRequest } from "next/server";
-import { z } from "zod";
+import { z } from "@/lib/validation/zod";
 
 import { CsvFailure, parseCsv, validateFiles } from "@/domain/imports/validation";
 import { AppError } from "@/lib/auth/errors";

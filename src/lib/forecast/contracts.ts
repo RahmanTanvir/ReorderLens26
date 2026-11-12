@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/validation/zod";
 
 export const FORECAST_VERSION="seasonal_baseline_v1";
 export const horizonSchema=z.union([z.literal(7),z.literal(14),z.literal(28)]);

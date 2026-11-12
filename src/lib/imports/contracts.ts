@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/validation/zod";
 
 export const fileKinds = ["suppliers", "products", "inventory_snapshots", "sales_daily"] as const;
 export type FileKind = typeof fileKinds[number];

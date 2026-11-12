@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/validation/zod";
 
 export const PLANNING_VERSION="reorder_v1";
 export const moneySchema=z.string().regex(/^\d{1,12}(\.\d{1,2})?$/);

@@ -1,5 +1,5 @@
 import "server-only";
-import { z } from "zod";
+import { z } from "@/lib/validation/zod";
 import { AppError } from "@/lib/auth/errors";
 import { forecastQuerySchema,generateForecastSchema,generationSchema,runDetailSchema,runListSchema,type ForecastQuery } from "@/lib/forecast/contracts";
 import { requireWorkspace } from "@/server/auth/context";

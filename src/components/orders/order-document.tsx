@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { InsightTrigger } from "@/components/insight/insight-provider";
 import { PageHeader } from "@/components/shared/page-header";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +10,7 @@ import { orderDate,type OrderRead } from "@/lib/orders/contracts";
 
 export function OrderDocument({data}:{data:OrderRead}){
   const {order,items}=data,d=order.document;
-  return <div className="space-y-6" data-order-print><div data-print-hide><Link href={`/app/purchase-orders?planId=${order.planId}`} className="inline-flex min-h-11 items-center text-xs text-primary underline">← Back to Purchase Orders</Link><PageHeader title="Purchase Order" description={`Created ${orderDate(order.createdAt)} · Draft, not sent`} actions={<DocumentActions orderId={order.id}/>}/></div>
+  return <div className="space-y-6" data-order-print><div data-print-hide><Link href={`/app/purchase-orders?planId=${order.planId}`} className="inline-flex min-h-11 items-center text-xs text-primary underline">← Back to Purchase Orders</Link><PageHeader title="Purchase Order" description={`Created ${orderDate(order.createdAt)} · Draft, not sent`} actions={<><InsightTrigger context={{screen:"orders",orderId:order.id}} message="Explain this purchase-order draft" label="Explain draft"/><DocumentActions orderId={order.id}/></>}/></div>
 
     <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_260px]" data-order-grid><article className="min-w-0 space-y-6 rounded-xl border bg-card p-5 sm:p-6" data-order-document>
     <div className="flex flex-wrap items-start justify-between gap-3"><div className="min-w-0"><p className="text-xs font-semibold uppercase tracking-wider text-primary">Purchase order draft</p>{d.isSample?<p className="mt-2 text-xs text-primary">Sample workspace · Illustrative data</p>:null}<h2 className="mt-2 break-all text-lg font-semibold">{order.orderNumber}</h2><p className="mt-3 text-sm">{d.workspaceName}</p><p className="mt-1 text-xs text-muted-foreground">{d.workspaceLocation}</p></div><Badge>Draft · Not sent</Badge></div>

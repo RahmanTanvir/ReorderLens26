@@ -2,6 +2,8 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { Menu } from "lucide-react";
+import { InsightProvider } from "@/components/insight/insight-provider";
+import { WorkspaceRequestProvider } from "@/components/workspace/workspace-request-provider";
 import { usePathname } from "next/navigation";
 
 import { SidebarNav } from "@/components/layout/sidebar-nav";
@@ -23,7 +25,7 @@ export function AppShell({ children, activePath, availablePaths = [], previewHre
     return () => desktop.removeEventListener("change", closeOnDesktop);
   }, []);
 
-  return (
+  const shell = (
     <TooltipProvider delayDuration={300}>
       <a href="#main-content" className="skip-link">Skip to content</a>
       <aside data-slot="desktop-sidebar" className="fixed inset-y-0 left-0 z-30 hidden w-[var(--shell-sidebar-width)] border-r bg-sidebar xl:block">
@@ -44,4 +46,5 @@ export function AppShell({ children, activePath, availablePaths = [], previewHre
       </div>
     </TooltipProvider>
   );
+  return workspace ? <WorkspaceRequestProvider key={workspace.id} workspaceId={workspace.id}><InsightProvider key={workspace.id+selectedPath} workspaceId={workspace.id} isSample={workspace.is_sample} path={selectedPath}>{shell}</InsightProvider></WorkspaceRequestProvider> : shell;
 }

@@ -7,5 +7,7 @@ export default defineConfig({
     environment: "node",
     include: ["tests/unit/**/*.test.ts", "tests/components/**/*.test.tsx", "tests/security/**/*.test.ts"],
     clearMocks: true,
+    // Each security file boots PostgreSQL/WASM; avoid CPU/memory setup timeouts.
+    maxWorkers: 2,
   },
 });

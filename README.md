@@ -1,16 +1,15 @@
 # ReorderLens
 
 Inventory intelligence and budget-aware replenishment planning, implemented in
-reviewed phases. P1 was accepted by the owner. P2 now includes Supabase migrations,
-server-side authentication, workspace setup and settings. The owner marked P2
-complete and authorized P3 with the verification gaps below carried forward. `/` redirects to
-`/login`; the preserved P1 visual preview is at `/preview`. P3 adds imports and
-isolated sample data. P4 implements Overview, Inventory and Product Details.
-P5 adds saved baseline forecasts and their source evidence at `/app/forecasts`;
-the owner applied its hosted SQL upgrade and all final hosted checks passed.
-P6 adds saved purchasing plans and stateless supplier-delay scenarios; its hosted
-upgrade and final owner checks passed. The owner marked P6 complete and authorized
-P7 purchase-order drafts/export. P8 AI remains gated.
+reviewed phases. P0–P8 are accepted by the owner. Insight is read-only and
+**deterministic-only**; external model qualification is deferred and inference
+stays disabled. P9 hardening/release preparation is in progress. No deployment,
+commit or push has been performed by the agent.
+
+P9 adds rendered-workspace request binding, refetching error recovery, per-response
+browser script policy, repeatable workflow/security checks and a credential-free
+CI workflow. See [release readiness](docs/RELEASE_CHECKLIST.md) for verified evidence,
+open hosted/operational gates and the separate deployment approval boundary.
 
 Follow [the Supabase development setup](supabase/README.md) before testing P2.
 Configuration belongs in the ignored `.env.local`; `.env.example` is a blank
@@ -34,9 +33,10 @@ real values out of Git. Leave both public Supabase settings blank or configure
 both together with a publishable key. Legacy anon-key configuration is not
 supported by this bootstrap.
 
-`AI_ASSISTANT_ENABLED` must remain `false`. External inference cannot be
-enabled until its P8 evaluation and privacy gates are implemented and reviewed.
-The OpenRouter model variables are reserved for P8 and are not consumed yet.
+Leave `AI_ASSISTANT_ENABLED=false`: Insight works deterministically with no
+external inference. The protected OpenRouter adapter consumes server-only model
+configuration only during explicit synthetic sample evaluation. See
+[P8 setup](supabase/P8_SETUP.md). Real-workspace data remains blocked externally.
 
 ## Verification
 
@@ -96,9 +96,9 @@ the Supabase CLI was found during inspection. No service credentials, accounts,
 cloud projects or public deployment are needed for the P1 preview.
 
 P2 resolves the pack-multiple plan snapshot and creator-only building-plan/line
-read policies in its initial migrations. Resolve before later phases: S11 edit/review behavior,
-assistant quota discrepancy (40 versus 50/org/day), and the stale `/api/inventory`
-test example versus canonical `/api/products`.
+read policies in its initial migrations. P7 resolved S11 as read-only review with editing in S08. P8 fixes the quota at
+40 questions/workspace/day, plus a separate global provider budget. The canonical
+inventory API is `/api/products`; older planning examples are historical.
 
 ## P0 verification record
 
@@ -564,3 +564,91 @@ The owner reported all final hosted draft saving, two-tab retry, refresh, CSV an
 printing checks passed. **P7 is complete.** See [P7 checklist](supabase/P7_SETUP.md).
 Inherited release gates remain open. No deployment, commit or push was performed;
 P8 is not authorized. The local specification package remains intentionally ignored.
+
+## P8 — read-only ReorderLens Insight (2026-11-12)
+
+Ask ReorderLens opens a contextual drawer, closed by default. It explains stock
+risk, forecast evidence, saved purchasing quantities, displayed supplier-delay
+results and immutable PO drafts. Replies lead with conversational implications
+and actual saved values. Help answers directly describe capabilities and examples;
+supporting facts, dated sources and caveats expand under Show evidence and sources.
+Stale/sample/read-only/provider disclosures remain visible. Unknown demand stays
+unknown, and no business records are changed. Chat stays in memory only.
+
+The server validates identity, workspace membership, object IDs and durable
+quotas before allowlisted retrieval. Migration014 adds operational usage metadata
+only; the owner reported applying `artifacts/p8-upgrade.sql`. All three hosted
+quota RPCs independently rejected anonymous execution (401/42501). The owner
+reported all deterministic hosted context, refusal, Escape, reopen and cancellation
+checks passed. The later conversational refinement is locally verified; this is
+not automated signed-in hosted E2E or production release approval.
+
+Final local verification:460 tests in33 files, including15 P8 PostgreSQL cases
+(143 across phases), zero-warning lint, route types/strict TypeScript and optimized
+production build pass. A combined build/four-worker suite attempt hit database
+setup timeouts; the clean two-worker full run passed. Browser checks use actual
+React components with explicit fictional API fixtures. Desktop screenshots show
+direct help paragraphs, numeric implications and expandable evidence. Original
+14 reference image hashes/logo and applied SQL bundle hash remain unchanged;
+individual design approval is not inferred. Existing release gaps remain open.
+
+Production smoke: anonymous assistant POST401/private no-store, protected
+inventory307 to login and preview200. All32 browser JS chunks contain no server
+credential markers or the local key. Git-visible files/template history contain
+no local key. Production dependency audit reports no known vulnerabilities.
+Agent smoke server stopped; owner's dev server untouched. No new dependency,
+installation, deployment, commit or push performed.
+
+A key misplaced in tracked `.env.example` was cleared and moved locally. After
+its appearance in inspection output, the owner reported revocation/replacement
+saved only in ignored `.env.local`, with `AI_ASSISTANT_ENABLED=false`.
+Key authentication succeeded. The bounded synthetic live evaluation then received
+three HTTP404 responses, zero accepted model answers, and stopped at its failure
+circuit breaker. Deterministic fallback preserved the facts. The40-case live
+benchmark did not complete; error-response times are not model performance.
+The exact404 cause is undetermined. Candidates remain unqualified; privacy/zero-
+price filters were preserved, with no paid routing or real data transmission.
+
+See [P8 setup](supabase/P8_SETUP.md). External inference remains disabled.
+Owner accepted P8 complete with model qualification deferred. P9 is now authorized;
+external inference stays disabled and deployment requires separate approval.
+
+Final presentation QA:55 state/viewport cases passed before the320px help case
+exposed a non-focusable scroll region. The conversation region is now named and
+keyboard-focusable with a visible focus ring. All15 focused final browser cases
+pass at320/390/1440, including all11 narrow states and help/stock at mobile and
+desktop sizes. Desktop/mobile screenshots were inspected, including expanded
+sources/caveats. The13 affected component tests, lint and final optimized build
+pass after this fix. No claim of66 final-version browser cases: the final recorded
+run contains15. Earlier60-case P8 and460-test full-suite evidence is retained with
+its actual scope. No migration or environment flag change is needed.
+
+## P9 local verification —2026-11-12
+
+- Full `corepack.cmd pnpm check` passes:479 tests in40 files, zero-warning lint,
+  strict route types/TypeScript and optimized production build. P9 adds19 tests,
+  including the418-row synthetic CSV workflow and one new PostgreSQL case
+  (144 PostgreSQL cases across phases). No forecast accuracy claim.
+- Final anonymous production smoke passes52 route/method checks: protected pages
+  redirect, APIs/export deny401, public auth mutations reject cross-origin403,
+  safe404 and script nonce/private no-store headers. Empty bodies prevent any
+  account creation or email side effect in those probes.
+- Actual production public routes pass18 width/page cases at1440/390/320 with
+  hydration interactions, dialog open/Escape, no root overflow, axe WCAG A/AA and
+  no observed application CSP violations before instrumentation. Screenshots
+  inspected; these are not authenticated hosted E2E or a complete accessibility audit.
+- Release preflight passes256 Git-visible files and39 browser artifacts, with no
+  high-confidence credential findings, preserved exact logo and disabled inference.
+  An explicit negative test rejects enabled inference without logging config values.
+  All14 original screen hashes are unchanged; individual design approvals are not
+  inferred. Applied migrations remain unchanged; P9 has only a read-only audit SQL.
+- CI YAML parses with official action commit pins/read-only permissions. CI has
+  not run on GitHub. Production dependency audit reports no known vulnerabilities;
+  inherited moderate development-only minimatch finding remains documented.
+- Owner supplied the passing hosted16-table/42-function/private-bucket structural
+  audit and reported all recovery checks passed. Two-account verification remains
+  open because only one confirmed test account is available. Existing staging
+  projects are owner-reported ready; exact targets/configuration are not yet verified.
+- Agent production smoke server/browser stopped; owner's dev session untouched.
+  No deployment, commit/push, new transitive package, customer-data upload or
+  external inference performed. P9 remains IN PROGRESS / LOCAL CHECKS PASSED.

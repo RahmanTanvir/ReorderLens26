@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import { z } from "zod";
+import { z } from "@/lib/validation/zod";
 import { AppError } from "@/lib/auth/errors";
 import { requireWorkspace } from "@/server/auth/context";
 import { endpoint,readJson } from "@/server/http";

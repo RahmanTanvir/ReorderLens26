@@ -1,17 +1,19 @@
 "use client";
+import { useWorkspaceRequest } from "@/components/workspace/workspace-request-provider";
 
 import { useId, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { z } from "zod";
+import { z } from "@/lib/validation/zod";
 
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { profileUpdateSchema, workspaceUpdateSchema, type MembershipWorkspace } from "@/lib/auth/contracts";
-import { requestJson } from "@/lib/client/request";
+
 import { useMutation } from "@/lib/client/use-mutation";
 
 export function SettingsForm({ workspace, displayName }: { workspace: MembershipWorkspace; displayName: string }) {
+  const requestJson=useWorkspaceRequest();
   const id = useId();
   const router = useRouter();
   const [name, setName] = useState(workspace.name);

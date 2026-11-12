@@ -2,7 +2,7 @@
 
 import { useId, useState, type FormEvent } from "react";
 import { ArrowRight, Database, Info, LoaderCircle, Upload } from "lucide-react";
-import { z } from "zod";
+import { z } from "@/lib/validation/zod";
 
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";

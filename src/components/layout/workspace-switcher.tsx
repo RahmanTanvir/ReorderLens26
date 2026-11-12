@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronsUpDown, Store } from "lucide-react";
-import { z } from "zod";
+import { z } from "@/lib/validation/zod";
 
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/alert";

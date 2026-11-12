@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/validation/zod";
 
 export const riskCodes=["at_risk","reorder_soon","healthy","unknown"] as const;
 export const sorts=["cover_asc","cover_desc","sku_asc","name_asc","risk"] as const;

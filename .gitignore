@@ -10,6 +10,8 @@
 /out/
 /coverage/
 /artifacts/
+/.vercel/
+/supabase/.temp/
 *.tsbuildinfo
 next-env.d.ts
 

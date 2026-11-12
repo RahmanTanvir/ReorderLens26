@@ -1,18 +1,11 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import localFont from "next/font/local";
+import { connection } from "next/server";
+import { manrope } from "@/lib/fonts";
 
 import { getServerEnvironment } from "@/server/config/environment";
 
 import "./globals.css";
-
-const manrope = localFont({
-  src: "./fonts/manrope-latin-variable.woff2",
-  weight: "200 800",
-  style: "normal",
-  display: "swap",
-  variable: "--font-manrope",
-});
 
 export const metadata: Metadata = {
   title: "ReorderLens",
@@ -21,7 +14,9 @@ export const metadata: Metadata = {
   icons: { icon: "/branding/reorderlens-logo.png" },
 };
 
-export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
+  // Per-response CSP nonces require request-time rendering, including /preview.
+  await connection();
   getServerEnvironment();
 
   return (

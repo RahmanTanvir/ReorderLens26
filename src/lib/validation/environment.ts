@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/validation/zod";
 
 type Environment = Readonly<Record<string, string | undefined>>;
 
@@ -33,8 +33,9 @@ const publicSchema = z
   });
 
 const serverSchema = z.object({
-  // P0 cannot enable external inference: privacy/consent gates belong to P8.
-  AI_ASSISTANT_ENABLED: z.literal("false").default("false"),
+  // This enables external inference only; deterministic Insight remains usable.
+  AI_ASSISTANT_ENABLED: z.enum(["false","true"]).default("false"),
+  OPENROUTER_SAMPLE_EVALUATION: z.enum(["false","true"]).default("false"),
   OPENROUTER_BASE_URL: z.literal("https://openrouter.ai/api/v1").default("https://openrouter.ai/api/v1"),
 });
 
@@ -75,15 +76,18 @@ export function parseServerEnvironment(environment: Environment) {
   const parsed = parseSafely(serverSchema, {
     AI_ASSISTANT_ENABLED: optionalValue(environment.AI_ASSISTANT_ENABLED),
     OPENROUTER_BASE_URL: optionalValue(environment.OPENROUTER_BASE_URL),
+    OPENROUTER_SAMPLE_EVALUATION: optionalValue(environment.OPENROUTER_SAMPLE_EVALUATION),
   });
 
   return {
     public: parsePublicEnvironment(environment),
     supabaseSecretKey: optionalValue(environment.SUPABASE_SECRET_KEY),
-    externalAiEnabled: false as const,
+    externalAiEnabled: parsed.AI_ASSISTANT_ENABLED === "true",
     openRouter: {
       baseUrl: parsed.OPENROUTER_BASE_URL,
       apiKey: optionalValue(environment.OPENROUTER_API_KEY),
+      models: [optionalValue(environment.OPENROUTER_PRIMARY_MODEL),...(optionalValue(environment.OPENROUTER_FALLBACK_MODELS)?.split(",").map(x=>x.trim()).filter(Boolean)??[])].filter((x):x is string=>Boolean(x)),
+      sampleEvaluation: parsed.OPENROUTER_SAMPLE_EVALUATION === "true",
     },
   };
 }

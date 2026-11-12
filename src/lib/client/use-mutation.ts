@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { z } from "zod";
+import { z } from "@/lib/validation/zod";
 
 import { RequestError } from "@/lib/client/request";
 

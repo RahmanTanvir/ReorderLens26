@@ -1,16 +1,17 @@
 "use client";
+import { useWorkspaceRequest } from "@/components/workspace/workspace-request-provider";
 
 import { useEffect,useRef,useState,type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { z } from "zod";
+import { z } from "@/lib/validation/zod";
 import { ArrowLeft,ArrowRight,Check,Download,FileSpreadsheet,LoaderCircle,Upload } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { Button,buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Table,TableBody,TableCell,TableHead,TableHeader,TableRow } from "@/components/ui/table";
-import { requestJson,RequestError } from "@/lib/client/request";
+import { RequestError } from "@/lib/client/request";
 import { useMutation } from "@/lib/client/use-mutation";
 import { describeFile } from "@/lib/imports/file-manifest";
 import { commitResultSchema,emptyMappings,fields,fileKinds,MAX_FILE_BYTES,optionalFields,reportSchema,suggestMappings,uploadResultSchema,type FileKind,type ImportCounts,type ImportReport,type JobView } from "@/lib/imports/contracts";
@@ -31,6 +32,7 @@ export function ValidationReport({report}:{report:ImportReport}) {
 }
 
 export function ImportWizard({initialJob=null,canUpload,canManageJob}:{initialJob?:JobView|null;canUpload:boolean;canManageJob:boolean}) {
+  const requestJson=useWorkspaceRequest();
   const mutation=useMutation();const id=useRef<string|null>(null);
   const router=useRouter();const panel=useRef<HTMLElement>(null);const mounted=useRef(false);
   const [files,setFiles]=useState<Partial<Record<FileKind,File>>>({});

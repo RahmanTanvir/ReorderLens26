@@ -1,7 +1,7 @@
 import "server-only";
 
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
+import { z } from "@/lib/validation/zod";
 
 import { AppError, assertSameOrigin, privateHeaders } from "@/lib/auth/errors";
 

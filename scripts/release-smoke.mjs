@@ -1,0 +1,22 @@
+import assert from "node:assert/strict";
+import { mkdir,writeFile } from "node:fs/promises";
+
+const target=new URL(process.argv[2]??"http://127.0.0.1:3100");
+if(!["http:","https:"].includes(target.protocol)||target.username||target.password||target.search||target.hash||target.pathname!=="/")throw Error("Use a plain application origin with no credentials/query/path.");
+const origin=target.origin,id="10000000-0000-4000-8000-000000000001",results=[];
+for(let attempt=0;;attempt++){try{await fetch(origin+"/login",{signal:AbortSignal.timeout(2000)});break;}catch{if(attempt===29)throw Error("Start the production server before running release smoke.");await new Promise(resolve=>setTimeout(resolve,1000));}}
+for(const path of ["/login","/signup","/auth/reset","/auth/resend","/preview"]){
+  const response=await fetch(origin+path,{signal:AbortSignal.timeout(20000)});assert.equal(response.status,200,path);
+  const policy=response.headers.get("Content-Security-Policy");assert.ok(policy?.includes("'strict-dynamic'"),path);assert.ok(!policy.includes("'unsafe-eval'"),path);
+  const nonce=policy.match(/'nonce-([^']+)'/)?.[1],html=await response.text();assert.ok(nonce&&html.includes(`nonce="${nonce}"`),path+" inline scripts need nonce");assert.ok(response.headers.get("cache-control")?.includes("no-store"));results.push({path,status:response.status,cspNonce:true});
+}
+for(const path of ["/setup","/app/overview","/app/data","/app/inventory",`/app/inventory/${id}`,"/app/forecasts","/app/replenishment","/app/scenarios","/app/purchase-orders",`/app/purchase-orders/${id}`,`/app/purchase-orders/review?planId=${id}`,"/app/settings"]){
+  const response=await fetch(origin+path,{redirect:"manual",signal:AbortSignal.timeout(20000)});assert.equal(response.status,307,path);const redirect=new URL(response.headers.get("location"),origin);assert.equal(redirect.origin,origin,path);assert.equal(redirect.pathname,"/login",path);assert.ok(response.headers.get("cache-control")?.includes("no-store"));results.push({path,status:response.status});
+}
+const api=[...['/api/workspaces','/api/workspace','/api/overview','/api/products',`/api/products/${id}`,'/api/forecasts/runs',`/api/forecasts/runs/${id}`,'/api/plans',`/api/plans/${id}`,'/api/purchase-orders',`/api/purchase-orders/${id}`,`/api/purchase-orders/${id}/export?format=csv`,`/api/imports/${id}`].map(path=>['GET',path]),...['/api/assistant','/api/imports',`/api/imports/${id}/validate`,`/api/imports/${id}/commit`,'/api/forecasts/runs','/api/plans',`/api/plans/${id}/convert`,'/api/scenarios/compare'].map(path=>['POST',path]),['PATCH',`/api/plans/${id}`],['PATCH','/api/workspace'],['PATCH','/api/profile'],['PATCH',`/api/plans/${id}/lines/${id}`],['POST','/api/workspaces'],['POST','/api/workspaces/select'],['POST',`/api/imports/${id}/files/suppliers`]];
+for(const [method,path] of api){const response=await fetch(origin+path,{method,redirect:"manual",headers:method==='GET'?{}:{origin,"Content-Type":"application/json"},body:method==='GET'?undefined:'{}',signal:AbortSignal.timeout(20000)});assert.equal(response.status,401,method+" "+path);assert.ok(response.headers.get("cache-control")?.includes("no-store"));results.push({method,path,status:response.status});}
+// Empty bodies and a hostile Origin prove public auth mutations reject CSRF
+// before validation/provider calls; no signup or recovery email can be sent.
+for(const action of ['sign-in','sign-up','request-reset','resend-confirmation','update-password','sign-out']){const path='/auth/'+action,response=await fetch(origin+path,{method:'POST',headers:{origin:'https://cross-origin.invalid','Content-Type':'application/json'},body:'{}',signal:AbortSignal.timeout(20000)});assert.equal(response.status,403,path);assert.ok(response.headers.get('cache-control')?.includes('no-store'));results.push({method:'POST',path,status:response.status,crossOriginDenied:true});}
+const missing=await fetch(origin+"/missing-release-check",{signal:AbortSignal.timeout(20000)});assert.equal(missing.status,404);assert.ok((await missing.text()).includes("Page not found"));results.push({path:"/missing-release-check",status:404});
+const result={origin,checks:results.length,passed:true,scope:"Anonymous production HTTP smoke only; not signed-in hosted E2E, isolation, recovery or deployment approval.",results};await mkdir("artifacts",{recursive:true});await writeFile("artifacts/p9-smoke.json",JSON.stringify(result,null,2));console.log(JSON.stringify(result,null,2));

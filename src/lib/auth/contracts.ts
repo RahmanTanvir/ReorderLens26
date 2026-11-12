@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "@/lib/validation/zod";
 
 export const roleSchema = z.enum(["owner", "operator", "viewer"]);
 export type WorkspaceRole = z.infer<typeof roleSchema>;
