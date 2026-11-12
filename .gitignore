@@ -9,6 +9,7 @@
 /.next/
 /out/
 /coverage/
+# Local browser profiles, screenshots, reports, SQL bundles and test build output.
 /artifacts/
 /.vercel/
 /supabase/.temp/

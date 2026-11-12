@@ -3,7 +3,21 @@
 Owner authorized P9 on2026-11-12. P8 is complete by owner acceptance with
 deterministic-only Insight; model qualification is deferred. Keep
 `AI_ASSISTANT_ENABLED=false` and `OPENROUTER_SAMPLE_EVALUATION=false`. No paid
-routing, customer inference, deployment, commit/push or spending is authorized.
+routing, customer inference, agent deployment, commit/push or spending is authorized.
+Owner reports successful Vercel deployment on2026-11-12; the agent did not deploy.
+
+Competition submission audit2026-11-12: current source cleanup/check results are
+in docs/SUBMISSION_AUDIT.md. Owner redirected the interrupted production-readiness
+work to repository review. Existing functional evidence remains scoped; unverified
+production gates have not been passed by that review. Judge access will be
+provided privately by the owner; no account credentials belong in Git.
+
+Current disposition2026-11-12: P9 core work is delivered with owner-deferred
+release checks. Owner explicitly skipped hosted schema type export, hosted
+Storage write checks, load testing and operational release checks. Keep their
+guides and limitations for later; do not request these again unless resumed.
+Deferred checks are unverified. This disposition is not a production-readiness
+claim or authorization for agent deployment, commit/push, spending or inference.
 
 ## Local verification
 
@@ -85,21 +99,115 @@ Vercel configuration follow-up2026-11-12: reproduced the metadata rejection;
 40 configuration tests pass after the fix, including18 platform metadata cases
 and unknown/public-secret rejection. Lint, typecheck and production build pass
 with all18 documented Vercel public metadata variables injected. This is local
-simulation; the corrected commit still requires owner publication/redeployment.
+simulation. Owner subsequently published/redeployed; see hosted results below.
+
+## Verified deployed anonymous result —2026-11-12
+
+Owner reports successful deployment at https://reorderlens26.vercel.app after
+the public Supabase variable mismatch was identified in runtime logs
+(`NEXT_PUBLIC_SUPABASE_ANON_KEY` is unsupported; this app uses the publishable-key
+setting). Remote credential values were not inspected or logged.
+
+`node scripts/release-smoke.mjs https://reorderlens26.vercel.app` passes52 checks:
+public pages200 with matching script nonce/strict CSP and no-store, protected
+pages307 to same-origin sign-in, anonymous business API requests401, empty
+cross-origin auth requests403, and safe unknown-page404. No account, email or
+business-data mutation was performed. Results: ignored artifacts/p9-smoke.json.
+Those HTTP checks alone do not prove browser hydration, signed-in business
+workflows, actual target Supabase association, two-account isolation or remaining
+operational gates. Additional evidence below has its own scope. No agent cloud
+configuration, commit/push or deployment.
+
+Owner separately reports all deployed sign-in, workspace access, protected-page
+refresh and sign-out checks passed on2026-11-12. This is owner-reported functional
+evidence for that scope; it does not close signup/email recovery on this origin,
+business workflow rehearsal or two-account isolation.
+
+Owner subsequently reports all six deployed fictional-QA business checks passed
+on2026-11-12: CSV import/reimport without duplicates; saved forecasts reopening
+after refresh; saved plan quantity edits persisting; supplier-delay analysis
+preserving the saved plan; draft PO save/replay without duplicates plus CSV/print;
+and grounded read-only Insight refusing "Place the order". This closes that
+deployed core-workflow rehearsal, not all negative/concurrency/load cases or
+two-account isolation. External inference remains disabled.
+
+Agent-executed deployed public browser QA also passes18 route/width cases
+(six public routes at1440,390,320) on2026-11-12. Password visibility controls and
+preview dialog/Escape verify hydration; no root horizontal overflow, axe WCAG
+A/AA findings or observed application CSP violations before instrumentation.
+Inspected hosted login390 and preview1440 screenshots. These checks are not a
+complete accessibility audit or authenticated browser E2E. Evidence: ignored
+artifacts/p9-hosted-browser-results.json and p9-hosted-*.png. The temporary hidden
+browser/profile is separate from the owner's session; the browser was stopped.
+
+Owner reports all deployed password-recovery checks passed on2026-11-12:
+recovery email returns to https://reorderlens26.vercel.app in the same browser,
+new password saves and signs in, and the reused recovery link shows a safe
+invalid/expired notice. No password, token or recovery URL was shared. This closes
+deployed recovery within that reported scope; signup confirmation remains separate.
+
+Owner subsequently reports successful second-account confirmation on the deployed
+site in a separate browser profile on2026-11-12, with return to the Vercel origin.
+Two confirmed accounts are now available; preparation does not prove isolation.
+
+Owner reports all listed two-account checks passed on2026-11-12: separate
+workspace pickers/memberships; cross-account product, forecast, plan, PO detail
+and CSV links reveal/download no foreign data (both directions where records
+exist); foreign product/run/plan/PO API requests return403/404 while own workspace
+access works; signed-out reloads require login/API401. Record this as owner-reported
+page/API/export isolation evidence. Private original CSV Storage access, import-job
+and explicit foreign-workspace-header checks, sequential same-profile identity
+mixing and stale-tab workspace targeting are separate checks still open.
+
+Owner subsequently reports stale-tab quantity saves updated Workspace One while
+Workspace Two stayed unchanged, and confirms the passing16-table/four-flag audit
+was run against the same Supabase project connected to Vercel (2026-11-12).
+This closes that target association by owner report and the tested stale-tab case.
+
+Remaining private import read checks have an interactive verifier:
+`node scripts/verify-hosted-isolation.ts`. See docs/HOSTED_ISOLATION_CHECK.md.
+Credentials are entered locally with echo suppressed, used in memory only, and
+never included in output. The tool authenticates test users and revokes only its
+own sessions; it performs no business/object writes. Transport tests alone are
+not hosted Storage evidence; owner-reported execution is recorded below.
+
+Verifier local validation2026-11-12:17 mocked-transport tests pass, lint/typecheck/
+production build pass, and credential preflight passes259 Git-visible paths and
+39 browser artifacts. Syntax checked with Node24; hidden-input/cancel behavior
+exercised in an actual terminal using fictional inputs and cancellation before
+network authentication. No live password or session was obtained by the agent.
+
+Owner reports the hosted verifier returned `passed: true` on2026-11-12. Record
+private import-row and CSV read isolation in both directions, anonymous denial
+and public-route denial as passed by owner report, including the verifier's own
+CSV positive controls. The saved JSON was not available in this checkout for
+agent inspection. This does not prove Storage write policies or other untested
+session/header behavior; credentials and raw CSVs were never shared.
+
+Owner reports remaining browser session/header checks passed on2026-11-12:
+after signing out A and signing in B in the same profile, refresh showed only
+B's data; B's read request with A's explicit X-Workspace-Id returned403 while
+B's own workspace remained usable. Record this scoped identity/header gate PASS.
 
 ## Hosted evidence and open release gates
 
 | Gate | Current evidence / required action |
 |---|---|
 | P2–P8 workflow | Owner-reported hosted functional checks passed; keep their documented scope |
-| Password recovery | Owner reports new password sign-in and reused-link handling passed on2026-11-12 |
-| Full schema/privileges | PASSED owner-supplied hosted audit:16 protected tables,42 guarded functions, private2MiB bucket;18 policies reviewed; associate/repeat against the exact staging target once confirmed |
-| Two-account isolation | OPEN: only one confirmed test account is available |
-| Hosted-generated DB types | OPEN: current `database.types.ts` is a checked query contract, not generated schema |
-| Deployed staging smoke | OPEN: no staging deployment authorized or performed |
-| Hosted load/concurrency | OPEN: local PostgreSQL measurements and owner two-tab PO replay are not load/stress proof |
-| Retention/deletion/restore | OPEN: policy, backup/restore exercise and responsible owner not approved |
-| Plan/domain/cost/monitoring | OPEN: Vercel/Supabase plan, production domain, budget and operational ownership need review |
+| Deployed session flow | PASSED owner-reported sign-in, workspace access, protected-page refresh and sign-out on2026-11-12 at https://reorderlens26.vercel.app |
+| Deployed core business flow | PASSED owner-reported six fictional-QA checks on2026-11-12: import/reimport, forecast reload, saved plan edits, read-only scenario, draft replay/exports and Insight grounding/refusal |
+| Deployed public browser QA | PASSED18 route/width cases with hydration interaction, no overflow, axe A/AA findings or observed app CSP violations; limited to public pages |
+| Password recovery | PASSED owner-reported deployed recovery redirect, new-password sign-in and safe reused-link handling at https://reorderlens26.vercel.app on2026-11-12; earlier local checks also passed |
+| Full schema/privileges | PASSED owner-supplied hosted audit:16 protected tables,42 guarded functions, private2MiB bucket;18 policies reviewed; owner confirms audit covers the project connected to Vercel on2026-11-12 |
+| Two-account isolation | Read/session/header scope PASSED by owner report: listed pages/record APIs/CSV exports, signed-out reload, stale-tab targeting, verifier reads, same-profile switching and foreign workspace header403; hosted write verification owner-deferred |
+| Hosted Storage write checks | OWNER-DEFERRED2026-11-12: no hosted write-denial pass claimed; prior local policy tests and structural audit retain their limited scope |
+| Private CSV read isolation | PASSED owner-reported hosted verifier `passed: true` on2026-11-12: distinct users, own-file controls, foreign import rows/CSV and anonymous/public-route denial; JSON not independently inspected |
+| Hosted-generated DB types | OWNER-DEFERRED2026-11-12: skip hosted type export/reconciliation for now; retain the manually checked query contract; no generated-schema verification claimed |
+| Deployed anonymous smoke | PASSED52 HTTP checks at https://reorderlens26.vercel.app on2026-11-12; owner deployed and confirms audited backend association; no general claim for untested signed-in edge cases |
+| Deployed signup confirmation | PASSED owner-reported second-account email confirmation in a separate browser profile, returning to the Vercel site on2026-11-12 |
+| Hosted load/concurrency | OWNER-DEFERRED2026-11-12: local PostgreSQL measurements and owner two-tab PO replay are not hosted load/stress proof |
+| Retention/deletion/restore | OWNER-DEFERRED2026-11-12 under operational release checks: policy, backup/restore exercise and responsible owner remain unverified/unapproved |
+| Plan/domain/cost/monitoring | OWNER-DEFERRED2026-11-12 under operational release checks: plan/budget, monitoring and operational ownership remain unverified; no spending authorized |
 | External AI | ACCEPTED DEFERRED: disabled; three synthetic404 responses, no model qualified |
 | Lint-tool advisory | One inherited moderate development-only minimatch advisory; compatible parser still uses affected major; no unsupported override |
 
@@ -110,11 +218,13 @@ result sets. Summary should show `table_count=16` and true for `tables_protected
 Details contain metadata only. Policy definitions alone do not prove enabled RLS,
 ACLs, private bucket settings or actual two-user behavior. Do not rerun old bundles.
 
-For generated types, use an authenticated Supabase CLI in your own environment:
-`supabase gen types typescript --project-id PROJECT_REF --schema public`.
-Save to an ignored comparison file first and reconcile against the checked query
-contract before replacing anything. Never send access tokens/DB passwords in chat.
-Do not label manually assembled types as hosted-generated.
+For generated types, follow docs/HOSTED_DATABASE_TYPES.md. Export actual TypeScript
+schema types from the connected Supabase project's dashboard into ignored
+artifacts/p9-hosted-database.types.ts first. Reconcile with the checked query
+contract before replacing anything. Dashboard export avoids installing a CLI or
+sharing account tokens. CLI users should check their installed version's help:
+v2 project-id and v3 remote targeting syntax differ. Never send access tokens/DB
+passwords in chat or label manually assembled types as hosted-generated.
 
 ## Hosted two-account procedure
 

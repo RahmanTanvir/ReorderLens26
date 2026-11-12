@@ -15,7 +15,6 @@ export function AuthFrame({ children }: { children: ReactNode }) {
       <section className="flex flex-col items-center justify-center gap-7 px-5 py-10 sm:px-10">
         <Link href="/login" className="rounded-md lg:hidden"><Brand /></Link>
         {children}
-        <Link href="/preview" className="rounded-md text-xs text-muted-foreground underline-offset-4 hover:text-primary hover:underline">View the visual system preview</Link>
       </section>
     </main>
   );
