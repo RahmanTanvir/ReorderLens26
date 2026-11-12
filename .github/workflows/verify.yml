@@ -15,6 +15,9 @@ jobs:
     timeout-minutes: 20
     env:
       NEXT_PUBLIC_APP_URL: http://localhost:3000
+      # Reproduce Vercel's automatically injected metadata in build/runtime checks.
+      NEXT_PUBLIC_VERCEL_ENV: preview
+      NEXT_PUBLIC_VERCEL_URL: synthetic-ci.vercel.app
       AI_ASSISTANT_ENABLED: "false"
       OPENROUTER_SAMPLE_EVALUATION: "false"
     steps:

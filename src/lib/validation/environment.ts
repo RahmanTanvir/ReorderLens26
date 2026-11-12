@@ -8,6 +8,31 @@ const publicKeys = new Set([
   "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY",
 ]);
 
+// Vercel injects these documented, public deployment facts during hosted builds.
+// Accept exact names only; never allow arbitrary NEXT_PUBLIC_VERCEL_* settings.
+// They are not application config and must not enter the returned projection.
+// https://vercel.com/docs/environment-variables/framework-environment-variables
+const vercelPublicMetadataKeys = new Set([
+  "NEXT_PUBLIC_VERCEL_ENV",
+  "NEXT_PUBLIC_VERCEL_TARGET_ENV",
+  "NEXT_PUBLIC_VERCEL_URL",
+  "NEXT_PUBLIC_VERCEL_BRANCH_URL",
+  "NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL",
+  "NEXT_PUBLIC_VERCEL_DEPLOYMENT_ID",
+  "NEXT_PUBLIC_VERCEL_PROJECT_ID",
+  "NEXT_PUBLIC_VERCEL_GIT_PROVIDER",
+  "NEXT_PUBLIC_VERCEL_GIT_REPO_SLUG",
+  "NEXT_PUBLIC_VERCEL_GIT_REPO_OWNER",
+  "NEXT_PUBLIC_VERCEL_GIT_REPO_ID",
+  "NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF",
+  "NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA",
+  "NEXT_PUBLIC_VERCEL_GIT_COMMIT_MESSAGE",
+  "NEXT_PUBLIC_VERCEL_GIT_COMMIT_AUTHOR_LOGIN",
+  "NEXT_PUBLIC_VERCEL_GIT_COMMIT_AUTHOR_NAME",
+  "NEXT_PUBLIC_VERCEL_GIT_PREVIOUS_SHA",
+  "NEXT_PUBLIC_VERCEL_GIT_PULL_REQUEST_ID",
+]);
+
 const httpUrl = z.url().refine((value) => {
   const url = new URL(value);
   return ["http:", "https:"].includes(url.protocol) && !url.username && !url.password;
@@ -54,8 +79,12 @@ function parseSafely<T>(schema: z.ZodType<T>, value: unknown): T {
 }
 
 export function parsePublicEnvironment(environment: Environment) {
-  if (Object.keys(environment).some((key) => key.startsWith("NEXT_PUBLIC_") && !publicKeys.has(key))) {
-    throw new Error("Unsupported NEXT_PUBLIC_ setting. Only approved public configuration is allowed.");
+  const unsupportedKeys = Object.keys(environment).filter(
+    (key) => key.startsWith("NEXT_PUBLIC_") && !publicKeys.has(key) && !vercelPublicMetadataKeys.has(key),
+  ).sort();
+  if (unsupportedKeys.length) {
+    // Names only: never include environment values in build errors.
+    throw new Error(`Unsupported NEXT_PUBLIC_ setting: ${unsupportedKeys.join(", ")}. Only approved public configuration is allowed.`);
   }
 
   const parsed = parseSafely(publicSchema, {

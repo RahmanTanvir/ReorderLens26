@@ -45,6 +45,10 @@ origin and missing Supabase public configuration; it does not authorize deployme
 
 ## Changes requiring regression checks
 
+- Hosted builds accept the exact documented `NEXT_PUBLIC_VERCEL_*` metadata names
+  that Vercel injects automatically. These do not enter application configuration
+  or replace `NEXT_PUBLIC_APP_URL`. Unknown public settings (including secret-key
+  names) still fail, with names-only diagnostics. CI simulates deployment metadata.
 - Business form requests and CSV exports bind to the rendered workspace. A
   different tab's cookie must not change the target of an import, forecast,
   saved plan edit or draft conversion. Server membership/RLS remains authoritative.
@@ -76,6 +80,12 @@ unchanged. Production audit clean; inherited moderate dev-only advisory retained
 CI syntax is checked locally but the GitHub workflow has not executed. Test
 Auth/Storage facades and public browser checks do not replace hosted identity E2E.
 Agent test server/browser were stopped; owner's dev session was untouched.
+
+Vercel configuration follow-up2026-11-12: reproduced the metadata rejection;
+40 configuration tests pass after the fix, including18 platform metadata cases
+and unknown/public-secret rejection. Lint, typecheck and production build pass
+with all18 documented Vercel public metadata variables injected. This is local
+simulation; the corrected commit still requires owner publication/redeployment.
 
 ## Hosted evidence and open release gates
 

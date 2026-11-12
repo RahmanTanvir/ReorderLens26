@@ -24,6 +24,34 @@ describe("bootstrap configuration", () => {
     expect(parsePublicEnvironment({ NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co", NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_example" }).supabase.configured).toBe(true);
   });
 
+  it.each([
+    "ENV", "TARGET_ENV", "URL", "BRANCH_URL", "PROJECT_PRODUCTION_URL",
+    "DEPLOYMENT_ID", "PROJECT_ID", "GIT_PROVIDER", "GIT_REPO_SLUG",
+    "GIT_REPO_OWNER", "GIT_REPO_ID", "GIT_COMMIT_REF", "GIT_COMMIT_SHA",
+    "GIT_COMMIT_MESSAGE", "GIT_COMMIT_AUTHOR_LOGIN", "GIT_COMMIT_AUTHOR_NAME",
+    "GIT_PREVIOUS_SHA", "GIT_PULL_REQUEST_ID",
+  ])("accepts Vercel's documented %s metadata without projecting it", (suffix) => {
+    const result = parseServerEnvironment({
+      [`NEXT_PUBLIC_VERCEL_${suffix}`]: "synthetic-deployment-metadata",
+      NEXT_PUBLIC_APP_URL: "https://reorderlens.example",
+    });
+    expect(result.public).toEqual({ appUrl: "https://reorderlens.example", supabase: { configured: false } });
+    expect(result.externalAiEnabled).toBe(false);
+  });
+
+  it.each(["NEXT_PUBLIC_CUSTOM_SETTING", "NEXT_PUBLIC_VERCEL_API_KEY", "NEXT_PUBLIC_VERCEL_SECRET"])(
+    "reports an unapproved name without its value: %s", (key) => {
+      try {
+        parsePublicEnvironment({ [key]: "private-test-value" });
+        expect.fail("Expected configuration rejection");
+      } catch (error) {
+        expect(error).toBeInstanceOf(Error);
+        expect((error as Error).message).toContain(key);
+        expect((error as Error).message).not.toContain("private-test-value");
+      }
+    },
+  );
+
   it.each(["javascript:alert(1)", "ftp://example.com", "https://user:secret@example.com"]) (
     "rejects unsafe application URLs: %s", (url) => {
       expect(() => parsePublicEnvironment({ NEXT_PUBLIC_APP_URL: url })).toThrow("Invalid application configuration");
