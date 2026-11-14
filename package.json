@@ -20,7 +20,8 @@
     "db:bundle": "node scripts/bundle-migrations.mjs",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
     "release:preflight": "node scripts/release-preflight.mjs",
-    "release:smoke": "node scripts/release-smoke.mjs"
+    "release:smoke": "node scripts/release-smoke.mjs",
+    "forecast:benchmark": "python ml/forecasting/benchmark.py"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "1.3.1",

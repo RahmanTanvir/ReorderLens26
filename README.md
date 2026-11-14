@@ -43,6 +43,12 @@ Insight currently uses deterministic explanations. The OpenRouter free-model
 adapter is implemented but external inference remains disabled; model
 qualification is deferred. See [AI and data provenance](docs/AI_AND_DATA_PROVENANCE.md).
 
+Forecasting still uses the saved deterministic baseline in the application. A
+stockout-aware LightGBM candidate has now been evaluated offline on attributed
+public data and exported to a dependency-free TypeScript parity layer, but remains
+experimental because only seven-day external-domain evidence exists. Reproduce
+and review it in [the model evaluation](docs/FORECAST_MODEL_EVALUATION.md).
+
 ## Run locally
 
 Use **Node24.18.0** and **pnpm11.25.0**, as pinned in package.json and .node-version.
@@ -124,6 +130,11 @@ The optional [capacity benchmark](tests/security/capacity.test.ts) runs only whe
 REORDERLENS_CAPACITY=1. It uses synthetic local data, not the deployed database.
 The [private CSV verifier](docs/HOSTED_ISOLATION_CHECK.md) is a separate interactive,
 read-only data check for maintainers with two confirmed test accounts.
+
+The optional offline ML benchmark is separate from `pnpm check`, downloads no
+data automatically, and never reads customer records. Setup, dataset hashes and
+the `corepack.cmd pnpm forecast:benchmark` command are documented in
+[ml/forecasting/README.md](ml/forecasting/README.md).
 
 ## Repository map
 

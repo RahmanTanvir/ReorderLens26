@@ -12,6 +12,14 @@ rules that have not been supplied or independently reviewed.
   are excluded; lost sales, promotion effects and calibrated uncertainty are not
   reconstructed. No trained-model accuracy, backtest improvement or business
   outcome is claimed.
+- A separate offline `stockout_lgbm_ratio_v1` experiment is reproducible from the
+  CC BY 4.0 FreshRetailNet-50K dataset. On its untouched seven-day evaluation
+  split, the validation-calibrated candidate reduced WAPE from 35.68% to 30.25%
+  and MAE from 0.4414 to 0.3742 on 206,562 target observations without recorded
+  stockout hours. This is external perishable-retail evidence, not customer or
+  latent-demand validation. The model remains experimental and is not selected,
+  persisted, displayed or used by the planner. See
+  [FORECAST_MODEL_EVALUATION.md](FORECAST_MODEL_EVALUATION.md).
 - Replenishment uses an explainable, budget-constrained greedy allocation with
   saved quantity/cost snapshots and human approvals. It is not a claim of global
   optimization. Draft purchase orders are never dispatched, paid or received by
